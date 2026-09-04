@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetDania Pro - Live Forex Desk</title>
+    <title>NetDania Fullscreen Workspace</title>
     <style>
+        /* NetDania Professional Dark Desk Theme */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -21,9 +22,10 @@
             overflow: hidden;
         }
 
+        /* Top Control Bar */
         header {
             background-color: #161a25;
-            padding: 10px 20px;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,32 +33,50 @@
             height: 50px;
         }
 
-        .logo {
-            font-weight: bold;
-            font-size: 18px;
+        .brand {
+            font-weight: 800;
+            font-size: 16px;
             color: #2962ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            letter-spacing: 0.5px;
         }
 
-        .status {
-            font-size: 12px;
+        .market-badge {
+            font-size: 11px;
             color: #4caf50;
             background: rgba(76, 175, 80, 0.1);
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
         }
 
-        /* Full bleed workspace container */
-        .workspace {
+        /* Fullscreen Layout Split Grid */
+        .fullscreen-desk {
+            display: flex;
             flex: 1;
             height: calc(100vh - 50px);
             width: 100%;
             background-color: #131722;
         }
 
-        #tradingview_dashboard {
+        /* Left Side: Advanced Quote List Matrix Container */
+        .quote-list-panel {
+            width: 420px;
+            height: 100%;
+            border-right: 1px solid #2a2e39;
+            background-color: #131722;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Right Side: Primary Active Chart Screen */
+        .chart-panel {
+            flex: 1;
+            height: 100%;
+            background-color: #1c2030;
+        }
+
+        .widget-container {
             width: 100%;
             height: 100%;
         }
@@ -64,50 +84,77 @@
 </head>
 <body>
 
-    <!-- Top Dashboard Header Bar -->
+    <!-- Top Navigation Header -->
     <header>
-        <div class="logo">📈 NetStation Pro</div>
-        <div class="status">● Market Live</div>
+        <div class="brand">NETDANIA WORKSPACE PRO</div>
+        <div class="market-badge">● Live Data Continuous</div>
     </header>
 
-    <!-- Main Workspace Area -->
-    <div class="workspace">
-        <div id="tradingview_dashboard">
-            <!-- Official Unified Advanced Market Engine Container -->
-            <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://tradingview.com" async>
-                {
-                    "autosize": true,
-                    "symbol": "FX:EURUSD",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "watchlist": [
-                        "FX:EURUSD",
-                        "FX:GBPUSD",
-                        "FX:USDJPY",
-                        "FX:AUDUSD",
-                        "FX:USDCAD",
-                        "FX:USDCHF"
-                    ],
-                    "details": true,
-                    "hotlist": false,
-                    "calendar": false,
-                    "show_popup_button": false,
-                    "popup_width": "1000",
-                    "popup_height": "650",
-                    "support_host": "https://tradingview.com"
-                }
-                </script>
+    <!-- Fullscreen Trading Workspace Layout -->
+    <main class="fullscreen-desk">
+        
+        <!-- Left Side: NetDania Style Multi-Column Quote Feed -->
+        <section class="quote-list-panel">
+            <div class="widget-container">
+                <div class="tradingview-widget-container" style="height:100%; width:100%;">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "colorTheme": "dark",
+                        "dateRange": "12M",
+                        "showChart": false,
+                        "locale": "en",
+                        "width": "100%",
+                        "height": "100%",
+                        "isTransparent": true,
+                        "showSymbolLogo": true,
+                        "tabs": [
+                            {
+                                "title": "Forex Quotes Desk",
+                                "symbols": [
+                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
+                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
+                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
+                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
+                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
+                                    { "s": "FX:USDCHF", "d": "USD / CHF" },
+                                    { "s": "FX:EURGBP", "d": "EUR / GBP" },
+                                    { "s": "FX:GBPJPY", "d": "GBP / JPY" }
+                                ]
+                            }
+                        ]
+                    }
+                    </script>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
+
+        <!-- Right Side: Advanced Fullscreen Chart Workspace Engine -->
+        <section class="chart-panel">
+            <div class="widget-container">
+                <div class="tradingview-widget-container" style="height:100%; width:100%;">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "autosize": true,
+                        "symbol": "FX:EURUSD",
+                        "interval": "60",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "enable_publishing": false,
+                        "hide_side_toolbar": false,
+                        "allow_symbol_change": true,
+                        "calendar": false,
+                        "support_host": "https://tradingview.com"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
 </body>
 </html>
