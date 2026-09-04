@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetDania Pro - Multi-Chart Forex Desk</title>
+    <title>NetDania Pro - Live Forex Desk</title>
     <style>
         * {
             box-sizing: border-box;
@@ -48,66 +48,61 @@
             border-radius: 4px;
         }
 
+        /* Full bleed workspace container */
         .workspace {
-            display: flex;
             flex: 1;
             height: calc(100vh - 50px);
+            width: 100%;
             background-color: #131722;
         }
 
-        /* 100% stable full-bleed tracking container */
-        .widget-wrapper {
+        #tradingview_dashboard {
             width: 100%;
             height: 100%;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Dashboard Header -->
+    <!-- Top Dashboard Header Bar -->
     <header>
         <div class="logo">📈 NetStation Pro</div>
         <div class="status">● Market Live</div>
     </header>
 
-    <!-- Main Workspace Container -->
+    <!-- Main Workspace Area -->
     <div class="workspace">
-        <div class="widget-wrapper">
-            <!-- Official Unified TradingView Multi-Chart Widget Frame -->
+        <div id="tradingview_dashboard">
+            <!-- Official Unified Advanced Market Engine Container -->
             <div class="tradingview-widget-container" style="height:100%; width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
                 <script type="text/javascript" src="https://tradingview.com" async>
                 {
-                    "colorTheme": "dark",
-                    "dateRange": "12M",
-                    "showChart": true,
+                    "autosize": true,
+                    "symbol": "FX:EURUSD",
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
                     "locale": "en",
-                    "largeChartUrl": "",
-                    "isTransparent": false,
-                    "showSymbolLogo": true,
-                    "showFloatingTooltip": false,
-                    "width": "100%",
-                    "height": "100%",
-                    "tabs": [
-                        {
-                            "title": "Forex Live Desk",
-                            "symbols": [
-                                { "s": "FX:EURUSD", "d": "EUR / USD" },
-                                { "s": "FX:GBPUSD", "d": "GBP / USD" },
-                                { "s": "FX:USDJPY", "d": "USD / JPY" },
-                                { "s": "FX:AUDUSD", "d": "AUD / USD" },
-                                { "s": "FX:USDCAD", "d": "USD / CAD" },
-                                { "s": "FX:USDCHF", "d": "USD / CHF" }
-                            ],
-                            "originalTitle": "Forex"
-                        }
-                    ]
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "watchlist": [
+                        "FX:EURUSD",
+                        "FX:GBPUSD",
+                        "FX:USDJPY",
+                        "FX:AUDUSD",
+                        "FX:USDCAD",
+                        "FX:USDCHF"
+                    ],
+                    "details": true,
+                    "hotlist": false,
+                    "calendar": false,
+                    "show_popup_button": false,
+                    "popup_width": "1000",
+                    "popup_height": "650",
+                    "support_host": "https://tradingview.com"
                 }
                 </script>
             </div>
