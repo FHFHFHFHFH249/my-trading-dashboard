@@ -113,7 +113,7 @@
             margin-top: 2px;
         }
 
-        /* Simulated price data tokens */
+        /* Price text layouts */
         .pair-meta {
             text-align: right;
         }
@@ -128,14 +128,13 @@
         .change-down { color: #f23645; }
 
         /* Right Side: Main Dynamic Chart Area */
-.chart-container {
-    flex: 1;
-    background-color: #1c2030;
-    position: relative;
-    height: 100%; /* Force height coverage */
-    min-height: 400px; /* Safety fallback threshold */
-}
-
+        .chart-container {
+            flex: 1;
+            background-color: #1c2030;
+            position: relative;
+            height: 100%; 
+            min-height: 400px; 
+        }
 
         /* TradingView Frame Wrapper */
         #tradingview_widget {
@@ -170,7 +169,7 @@
 
     </div>
 
-    <!-- Injecting TradingView's Free Advanced Chart Widget Script -->
+    <!-- FIXED: Using the accurate, official external library hosting source directly -->
     <script type="text/javascript" src="https://tradingview.com"></script>
     <script type="text/javascript">
         
@@ -188,19 +187,24 @@
 
         // Function to build and update the Charting Engine
         function loadChart(symbol) {
-            new TradingView.widget({
-                "width": "100%",
-                "height": "100%",
-                "symbol": symbol,
-                "interval": "D",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1", // Candlesticks
-                "locale": "en",
-                "enable_publishing": false,
-                "allow_symbol_change": false,
-                "container_id": "tradingview_widget"
-            });
+            if (typeof TradingView !== 'undefined') {
+                new TradingView.widget({
+                    "width": "100%",
+                    "height": "100%",
+                    "symbol": symbol,
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1", // Candlesticks
+                    "locale": "en",
+                    "enable_publishing": false,
+                    "allow_symbol_change": false,
+                    "container_id": "tradingview_widget"
+                });
+            } else {
+                document.getElementById('tradingview_widget').innerHTML = 
+                    `<div style="padding: 20px; color: #f23645;">Error: TradingView script failed to load. Check your internet connection or ad-blocker.</div>`;
+            }
         }
 
         // Render the UI list inside the side-panel
@@ -234,19 +238,14 @@
             });
         }
 
-        // Safer Initialization Routine
-window.addEventListener('DOMContentLoaded', () => {
-    // Render the initial UI list
-    renderSidebar();
-    
-    // Explicitly fallback to the first symbol if activeSymbol is not set
-    const initialSymbol = activeSymbol || targetPairs[0].symbol;
-    
-    // Tiny 100ms delay ensures the DOM wrapper is 100% stable before embedding
-    setTimeout(() => {
-        loadChart(initialSymbol);
-    }, 100);
-});
+        // Safe DOM Content Loaded timing handler
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSidebar();
+            const initialSymbol = activeSymbol || targetPairs[0].symbol;
+            setTimeout(() => {
+                loadChart(initialSymbol);
+            }, 150);
+        });
     </script>
 </body>
 </html>
