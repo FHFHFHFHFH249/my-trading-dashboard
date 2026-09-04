@@ -54,13 +54,14 @@
             height: calc(100vh - 50px);
         }
 
-        /* Sidebar container engineered to host live-feed nodes */
+        /* Dedicated Left Side Panel Container */
         .side-panel {
             width: 350px;
             background-color: #131722;
             border-right: 1px solid #2a2e39;
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
 
         .panel-header {
@@ -71,20 +72,19 @@
             letter-spacing: 0.5px;
             color: #787b86;
             border-bottom: 1px solid #2a2e39;
+            background-color: #131722;
         }
 
-        /* Container for the real-time sidebar widget */
         .watchlist-wrapper {
             flex: 1;
             width: 100%;
             height: 100%;
-            overflow: hidden;
         }
 
+        /* Right Side Main Chart Workspace */
         .chart-container {
             flex: 1;
             background-color: #1c2030;
-            position: relative;
             height: 100%; 
         }
 
@@ -97,72 +97,28 @@
 </head>
 <body>
 
+    <!-- Header Top Navigation -->
     <header>
         <div class="logo">📈 NetStation Pro</div>
         <div class="status">● Market Live</div>
     </header>
 
+    <!-- Main Live Workspace -->
     <div class="workspace">
-        <!-- Sidebar containing streaming live prices -->
+        
+        <!-- Left Side Panel: 100% Reliable Live Streaming Forex Rates -->
         <aside class="side-panel">
             <div class="panel-header">Live Forex Watchlist</div>
             <div class="watchlist-wrapper">
-                <!-- Official TradingView Market Watchlist Widget -->
-                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                    <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
-                    <script type="text/javascript" src="https://tradingview.com" async>
-                    {
-                        "colorTheme": "dark",
-                        "dateRange": "12M",
-                        "showChart": false,
-                        "locale": "en",
-                        "largeChartUrl": "",
-                        "isTransparent": true,
-                        "showSymbolLogo": true,
-                        "showFloatingTooltip": false,
-                        "tabs": [
-                            {
-                                "title": "Forex",
-                                "symbols": [
-                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
-                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
-                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
-                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
-                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
-                                    { "s": "FX:USDCHF", "d": "USD / CHF" }
-                                ],
-                                "originalTitle": "Forex"
-                            }
-                        ]
-                    }
-                    </script>
-                </div>
+                <iframe src="https://tradingview.com[{%22title%22:%22Forex%22,%22symbols%22:[{%22s%22:%22FX:EURUSD%22,%22d%22:%22EUR/USD%22},{%22s%22:%22FX:GBPUSD%22,%22d%22:%22GBP/USD%22},{%22s%22:%22FX:USDJPY%22,%22d%22:%22USD/JPY%22},{%22s%22:%22FX:AUDUSD%22,%22d%22:%22AUD/USD%22},{%22s%22:%22FX:USDCAD%22,%22d%22:%22USD/CAD%22},{%22s%22:%22FX:USDCHF%22,%22d%22:%22USD/CHF%22}]}]" style="width: 100%; height: 100%;"></iframe>
             </div>
         </aside>
 
-        <!-- Main Chart Display window linking the system together -->
-        <main class="chart-container" id="chartWrapper">
-            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                <div id="tradingview_main_chart" style="height: 100%; width: 100%;"></div>
-                <script type="text/javascript" src="https://tradingview.com"></script>
-                <script type="text/javascript">
-                    new TradingView.widget({
-                        "width": "100%",
-                        "height": "100%",
-                        "symbol": "FX:EURUSD",
-                        "interval": "D",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "enable_publishing": false,
-                        "hide_side_toolbar": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_main_chart"
-                    });
-                </script>
-            </div>
+        <!-- Right Side: Native Interactive Main Chart Window -->
+        <main class="chart-container">
+            <iframe src="https://tradingview.com" style="width: 100%; height: 100%;"></iframe>
         </main>
+
     </div>
 
 </body>
