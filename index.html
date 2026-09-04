@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetDania Pro - Live Forex Desk</title>
+    <title>NetDania Pro - Multi-Chart Forex Desk</title>
     <style>
         * {
             box-sizing: border-box;
@@ -52,117 +52,67 @@
             display: flex;
             flex: 1;
             height: calc(100vh - 50px);
-        }
-
-        /* Sidebar Layout */
-        .side-panel {
-            width: 350px;
-            background-color: #131722;
-            border-right: 1px solid #2a2e39;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .panel-header {
-            padding: 15px;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #787b86;
-            border-bottom: 1px solid #2a2e39;
             background-color: #131722;
         }
 
-        .watchlist-wrapper {
-            flex: 1;
+        /* 100% stable full-bleed tracking container */
+        .widget-wrapper {
             width: 100%;
             height: 100%;
         }
 
-        /* Chart Window Area */
-        .chart-container {
-            flex: 1;
-            background-color: #1c2030;
-            height: 100%; 
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
-    <!-- Core charting script engine loaded in head -->
-    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
-    <!-- Header Navigation -->
+    <!-- Top Dashboard Header -->
     <header>
         <div class="logo">📈 NetStation Pro</div>
         <div class="status">● Market Live</div>
     </header>
 
-    <!-- App Main Workspace -->
+    <!-- Main Workspace Container -->
     <div class="workspace">
-        
-        <!-- Left Sidebar Panel: Streaming Forex Tickers -->
-        <aside class="side-panel">
-            <div class="panel-header">Live Forex Watchlist</div>
-            <div class="watchlist-wrapper">
-                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://tradingview.com" async>
-                    {
-                        "colorTheme": "dark",
-                        "dateRange": "12M",
-                        "showChart": false,
-                        "locale": "en",
-                        "isTransparent": true,
-                        "showSymbolLogo": true,
-                        "tabs": [
-                            {
-                                "title": "Forex",
-                                "symbols": [
-                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
-                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
-                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
-                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
-                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
-                                    { "s": "FX:USDCHF", "d": "USD / CHF" }
-                                ]
-                            }
-                        ]
-                    }
-                    </script>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Right Side: Live Candlestick Graph Workspace -->
-        <main class="chart-container" id="tv-main-chart"></main>
-
-    </div>
-
-    <!-- Official Widget Initialization Module -->
-    <script type="text/javascript">
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof TradingView !== 'undefined') {
-                new TradingView.widget({
+        <div class="widget-wrapper">
+            <!-- Official Unified TradingView Multi-Chart Widget Frame -->
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
+                <script type="text/javascript" src="https://tradingview.com" async>
+                {
+                    "colorTheme": "dark",
+                    "dateRange": "12M",
+                    "showChart": true,
+                    "locale": "en",
+                    "largeChartUrl": "",
+                    "isTransparent": false,
+                    "showSymbolLogo": true,
+                    "showFloatingTooltip": false,
                     "width": "100%",
                     "height": "100%",
-                    "symbol": "FX:EURUSD",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "container_id": "tv-main-chart"
-                });
-            } else {
-                document.getElementById('tv-main-chart').innerHTML = 
-                    `<div style="padding:20px; color:#f23645; text-align:center;">TradingView library failing to mount. Please try forcing a browser reload.</div>`;
-            }
-        });
-    </script>
+                    "tabs": [
+                        {
+                            "title": "Forex Live Desk",
+                            "symbols": [
+                                { "s": "FX:EURUSD", "d": "EUR / USD" },
+                                { "s": "FX:GBPUSD", "d": "GBP / USD" },
+                                { "s": "FX:USDJPY", "d": "USD / JPY" },
+                                { "s": "FX:AUDUSD", "d": "AUD / USD" },
+                                { "s": "FX:USDCAD", "d": "USD / CAD" },
+                                { "s": "FX:USDCHF", "d": "USD / CHF" }
+                            ],
+                            "originalTitle": "Forex"
+                        }
+                    ]
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
