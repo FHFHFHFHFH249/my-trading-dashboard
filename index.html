@@ -54,7 +54,7 @@
             height: calc(100vh - 50px);
         }
 
-        /* Dedicated Left Side Panel Container */
+        /* Sidebar Container */
         .side-panel {
             width: 350px;
             background-color: #131722;
@@ -81,45 +81,88 @@
             height: 100%;
         }
 
-        /* Right Side Main Chart Workspace */
+        /* Main Chart Area */
         .chart-container {
             flex: 1;
             background-color: #1c2030;
             height: 100%; 
         }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
     </style>
+    <!-- Load the official TradingView charting library up in the head safely -->
+    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
-    <!-- Header Top Navigation -->
+    <!-- Header navigation -->
     <header>
         <div class="logo">📈 NetStation Pro</div>
         <div class="status">● Market Live</div>
     </header>
 
-    <!-- Main Live Workspace -->
+    <!-- Workspace Layout -->
     <div class="workspace">
         
-        <!-- Left Side Panel: 100% Reliable Live Streaming Forex Rates -->
+        <!-- Left Side: Live Sidebar List -->
         <aside class="side-panel">
             <div class="panel-header">Live Forex Watchlist</div>
             <div class="watchlist-wrapper">
-                <iframe src="https://tradingview.com[{%22title%22:%22Forex%22,%22symbols%22:[{%22s%22:%22FX:EURUSD%22,%22d%22:%22EUR/USD%22},{%22s%22:%22FX:GBPUSD%22,%22d%22:%22GBP/USD%22},{%22s%22:%22FX:USDJPY%22,%22d%22:%22USD/JPY%22},{%22s%22:%22FX:AUDUSD%22,%22d%22:%22AUD/USD%22},{%22s%22:%22FX:USDCAD%22,%22d%22:%22USD/CAD%22},{%22s%22:%22FX:USDCHF%22,%22d%22:%22USD/CHF%22}]}]" style="width: 100%; height: 100%;"></iframe>
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" id="tv-watchlist"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "colorTheme": "dark",
+                        "dateRange": "12M",
+                        "showChart": false,
+                        "locale": "en",
+                        "isTransparent": true,
+                        "showSymbolLogo": true,
+                        "tabs": [
+                            {
+                                "title": "Forex",
+                                "symbols": [
+                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
+                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
+                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
+                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
+                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
+                                    { "s": "FX:USDCHF", "d": "USD / CHF" }
+                                ]
+                            }
+                        ]
+                    }
+                    </script>
+                </div>
             </div>
         </aside>
 
-        <!-- Right Side: Native Interactive Main Chart Window -->
-        <main class="chart-container">
-            <iframe src="https://tradingview.com" style="width: 100%; height: 100%;"></iframe>
-        </main>
+        <!-- Right Side: Live Interactive Chart Frame -->
+        <main class="chart-container" id="tv-main-chart"></main>
 
     </div>
 
+    <!-- Official Widget Initialization Script -->
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof TradingView !== 'undefined') {
+                new TradingView.widget({
+                    "width": "100%",
+                    "height": "100%",
+                    "symbol": "FX:EURUSD",
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tv-main-chart"
+                });
+            } else {
+                document.getElementById('tv-main-chart').innerHTML = 
+                    `<div style="padding:20px; color:#f23645;">TradingView core module failed to load. Check your adblocker.</div>`;
+            }
+        });
+    </script>
 </body>
 </html>
