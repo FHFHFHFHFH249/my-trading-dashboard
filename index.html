@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Pair Forex Dashboard</title>
+    <title>Live Multi-Pair Forex Dashboard</title>
     <style>
         * {
             box-sizing: border-box;
@@ -54,7 +54,6 @@
             height: calc(100vh - 50px);
         }
 
-        /* Fixed Sidebar Structure layout */
         .side-panel {
             width: 320px;
             background-color: #131722;
@@ -120,6 +119,20 @@
             font-weight: bold;
             font-size: 15px;
             color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        /* Real-time price update flashes */
+        .flash-green {
+            background-color: rgba(8, 153, 129, 0.25);
+            color: #26a69a;
+        }
+
+        .flash-red {
+            background-color: rgba(242, 54, 69, 0.25);
+            color: #ef5350;
         }
 
         .pair-change {
@@ -149,7 +162,7 @@
 
     <header>
         <div class="logo">📈 NetStation Pro</div>
-        <div class="status">● Market Live</div>
+        <div class="status" id="connection-status">● Market Live</div>
     </header>
 
     <div class="workspace">
@@ -158,32 +171,28 @@
             <ul class="pair-list" id="pairList"></ul>
         </aside>
 
-        <main class="chart-container" id="chartWrapper">
-            <!-- Stable Presentation Window embeds safely here -->
-        </main>
+        <main class="chart-container" id="chartWrapper"></main>
     </div>
 
     <script type="text/javascript">
-        // Safe, native market feeds 
+        // Real market instruments linked to active live web feeds
         const targetPairs = [
-            { display: 'EUR / USD', symbol: 'FX:EURUSD', price: '1.0842', change: '+0.14%', up: true },
-            { display: 'GBP / USD', symbol: 'FX:GBPUSD', price: '1.2635', change: '-0.08%', up: false },
-            { display: 'USD / JPY', symbol: 'FX:USDJPY', price: '151.22', change: '+0.32%', up: true },
-            { display: 'AUD / USD', symbol: 'FX:AUDUSD', price: '0.6514', change: '-0.21%', up: false },
-            { display: 'USD / CAD', symbol: 'FX:USDCAD', price: '1.3568', change: '+0.05%', up: true },
-            { display: 'Gold / USD', symbol: 'OANDA:XAUUSD', price: '2178.40', change: '+1.12%', up: true }
+            { display: 'EUR / USD', symbol: 'FX:EURUSD', liveFeed: 'eurusdt', price: '1.0842', change: '+0.14%', up: true },
+            { display: 'GBP / USD', symbol: 'FX:GBPUSD', liveFeed: 'gbpusdt', price: '1.2635', change: '-0.08%', up: false },
+            { display: 'USD / JPY', symbol: 'FX:USDJPY', liveFeed: 'usdjpyt', price: '151.22', change: '+0.32%', up: true },
+            { display: 'AUD / USD', symbol: 'FX:AUDUSD', liveFeed: 'audusdt', price: '0.6514', change: '-0.21%', up: false },
+            { display: 'USD / CAD', symbol: 'FX:USDCAD', liveFeed: 'usdcadt', price: '1.3568', change: '+0.05%', up: true },
+            { display: 'BTC / USD', symbol: 'BINANCE:BTCUSDT', liveFeed: 'btcusdt', price: '62000.00', change: '+2.41%', up: true }
         ];
 
-        // Access the default array asset cleanly
         let activeSymbol = targetPairs[0].symbol;
+        let ws;
 
-        // FIXED: Using standard, secure embed layouts to load charting tools without script crashes
         function loadChart(symbol) {
             const container = document.getElementById('chartWrapper');
             const formattedSymbol = encodeURIComponent(symbol);
-            
             container.innerHTML = `
-                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&symboledit=0&saveimage=1&toolbarbg=161a25&theme=dark&style=1&timezone=Etc%2FUTC&locale=en"></iframe>
+                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&theme=dark&style=1&timezone=Etc%2FUTC&locale=en"></iframe>
             `;
         }
 
@@ -201,8 +210,8 @@
                         <span class="pair-market">${pair.symbol.split(':')[0]}</span>
                     </div>
                     <div class="pair-meta">
-                        <div class="pair-price">${pair.price}</div>
-                        <div class="pair-change ${pair.up ? 'change-up' : 'change-down'}">${pair.change}</div>
+                        <div class="pair-price" id="price-${pair.liveFeed}">${pair.price}</div>
+                        <div class="pair-change ${pair.up ? 'change-up' : 'change-down'}" id="change-${pair.liveFeed}">${pair.change}</div>
                     </div>
                 `;
 
@@ -216,10 +225,69 @@
             });
         }
 
-        // Initialize elements safely upon content load
+        // Connect a persistent WebSocket stream to process flashing real-time changes
+        function initLivePriceStream() {
+            // Combine all pair stream paths into a single multiplex connection
+            const streams = targetPairs.map(p => `${p.liveFeed}@ticker`).join('/');
+            ws = new WebSocket(`wss://://binance.com{streams}`);
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                const streamName = message.stream.split('@')[0];
+                const data = message.data;
+
+                const pair = targetPairs.find(p => p.liveFeed === streamName);
+                if (pair) {
+                    const priceEl = document.getElementById(`price-${streamName}`);
+                    const changeEl = document.getElementById(`change-${streamName}`);
+                    
+                    const newPrice = parseFloat(data.c);
+                    const oldPrice = parseFloat(pair.price);
+                    const priceChangePercent = parseFloat(data.P);
+
+                    // Update tracking array data state
+                    pair.price = data.c;
+                    pair.change = (priceChangePercent >= 0 ? '+' : '') + priceChangePercent.toFixed(2) + '%';
+                    pair.up = priceChangePercent >= 0;
+
+                    if (priceEl) {
+                        // Determine layout formatting adjustments based on value scale size
+                        priceEl.innerText = newPrice > 100 ? newPrice.toFixed(2) : newPrice.toFixed(4);
+                        
+                        // Apply temporary green or red flashing indicators
+                        if (newPrice > oldPrice) {
+                            priceEl.className = 'pair-price flash-green';
+                        } else if (newPrice < oldPrice) {
+                            priceEl.className = 'pair-price flash-red';
+                        }
+                        
+                        // Clear the color flash container styling back to normal after 300ms
+                        setTimeout(() => {
+                            priceEl.className = 'pair-price';
+                        }, 300);
+                    }
+
+                    if (changeEl) {
+                        changeEl.innerText = pair.change;
+                        changeEl.className = `pair-change ${pair.up ? 'change-up' : 'change-down'}`;
+                    }
+                }
+            };
+
+            ws.onerror = () => {
+                document.getElementById('connection-status').innerText = "● Stream Reconnecting";
+            };
+
+            ws.onclose = () => {
+                // Reconnect automatically if the connection drops
+                setTimeout(initLivePriceStream, 3000);
+            };
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             loadChart(activeSymbol);
+            initLivePriceStream();
         });
     </script>
 </body>
