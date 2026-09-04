@@ -54,12 +54,14 @@
             height: calc(100vh - 50px);
         }
 
+        /* Redesigned Sidebar Container for Live Stream Feeds */
         .side-panel {
-            width: 320px;
+            width: 340px;
             background-color: #131722;
             border-right: 1px solid #2a2e39;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
 
         .panel-header {
@@ -72,55 +74,33 @@
             border-bottom: 1px solid #2a2e39;
         }
 
-        .pair-list {
-            list-style: none;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .pair-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
+        /* Interactive Ticker Row Wrapper */
+        .ticker-row-wrapper {
             border-bottom: 1px solid #1e222d;
             cursor: pointer;
+            position: relative;
+            background-color: #131722;
             transition: background 0.2s ease;
         }
 
-        .pair-item:hover {
+        .ticker-row-wrapper:hover {
             background-color: #1e222d;
         }
 
-        .pair-item.active {
+        .ticker-row-wrapper.active {
             background-color: #2a2e39;
             border-left: 4px solid #2962ff;
         }
 
-        .pair-name {
-            font-weight: bold;
-            font-size: 15px;
+        /* Prevents iframe overlays from blocking clicks */
+        .click-shield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
         }
-
-        .pair-market {
-            font-size: 11px;
-            color: #787b86;
-            display: block;
-            margin-top: 2px;
-        }
-
-        .pair-meta {
-            text-align: right;
-        }
-
-        .pair-price {
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .change-up { color: #089981; }
-        .change-down { color: #f23645; }
 
         .chart-container {
             flex: 1;
@@ -144,9 +124,10 @@
     </header>
 
     <div class="workspace">
-        <aside class="side-panel">
-            <div class="panel-header">Watchlist Pairs</div>
-            <ul class="pair-list" id="pairList"></ul>
+        <!-- Sidebar containing streaming ticket widgets -->
+        <aside class="side-panel" id="sidebarContainer">
+            <div class="panel-header">Live Watchlist</div>
+            <!-- Populated dynamically via live widget nodes -->
         </aside>
 
         <main class="chart-container" id="chartWrapper">
@@ -155,19 +136,19 @@
     </div>
 
     <script type="text/javascript">
-        // Standard baseline market data
+        // Curated global financial target streams
         const targetPairs = [
-            { display: 'EUR / USD', symbol: 'FX:EURUSD', price: '1.1629', change: '+0.14%', up: true },
-            { display: 'GBP / USD', symbol: 'FX:GBPUSD', price: '1.3489', change: '-0.08%', up: false },
-            { display: 'USD / JPY', symbol: 'FX:USDJPY', price: '159.22', change: '+0.32%', up: true },
-            { display: 'AUD / USD', symbol: 'FX:AUDUSD', price: '0.6714', change: '-0.21%', up: false },
-            { display: 'USD / CAD', symbol: 'FX:USDCAD', price: '1.3832', change: '+0.05%', up: true },
-            { display: 'Gold / USD', symbol: 'OANDA:XAUUSD', price: '4473.54', change: '+1.12%', up: true }
+            { name: 'EUR / USD', symbol: 'FX:EURUSD' },
+            { name: 'GBP / USD', symbol: 'FX:GBPUSD' },
+            { name: 'USD / JPY', symbol: 'FX:USDJPY' },
+            { name: 'AUD / USD', symbol: 'FX:AUDUSD' },
+            { name: 'USD / CAD', symbol: 'FX:USDCAD' },
+            { name: 'Gold / USD', symbol: 'OANDA:XAUUSD' }
         ];
 
         let activeSymbol = targetPairs[0].symbol;
 
-        // Bypasses local tracking blocks via direct structural embedded execution 
+        // Render main charting window via sandboxed iFrames
         function loadChart(symbol) {
             const container = document.getElementById('chartWrapper');
             const formattedSymbol = encodeURIComponent(symbol);
@@ -177,37 +158,41 @@
             `;
         }
 
-        function renderSidebar() {
-            const listContainer = document.getElementById('pairList');
-            listContainer.innerHTML = '';
-
+        // Build native auto-updating ticker elements directly inside the sidebar rows
+        function buildStreamingSidebar() {
+            const sidebar = document.getElementById('sidebarContainer');
+            
             targetPairs.forEach(pair => {
-                const li = document.createElement('li');
-                li.className = `pair-item ${pair.symbol === activeSymbol ? 'active' : ''}`;
+                const wrapper = document.createElement('div');
+                wrapper.id = `row-${pair.symbol.replace(':', '-')}`;
+                wrapper.className = `ticker-row-wrapper ${pair.symbol === activeSymbol ? 'active' : ''}`;
                 
-                li.innerHTML = `
-                    <div>
-                        <span class="pair-name">${pair.display}</span>
-                        <span class="pair-market">${pair.symbol.split(':')[0]}</span>
-                    </div>
-                    <div class="pair-meta">
-                        <div class="pair-price">${pair.price}</div>
-                        <div class="pair-price ${pair.up ? 'change-up' : 'change-down'}">${pair.change}</div>
+                // Embed custom mini single-ticker streaming frame into row bounds
+                const encodedSymbol = encodeURIComponent(pair.symbol);
+                wrapper.innerHTML = `
+                    <div class="click-shield"></div>
+                    <div style="height: 66px; width: 100%; overflow: hidden;">
+                        <iframe src="https://tradingview.com{encodedSymbol}&theme=dark&locale=en" style="width:100%; height:126px; margin-top:-20px;"></iframe>
                     </div>
                 `;
 
-                li.addEventListener('click', () => {
+                // Handle clicking a pair to swap the main chart stream smoothly
+                wrapper.addEventListener('click', () => {
+                    // Update highlighting properties across rows
+                    document.querySelectorAll('.ticker-row-wrapper').forEach(el => el.classList.remove('active'));
+                    wrapper.classList.add('active');
+                    
                     activeSymbol = pair.symbol;
-                    renderSidebar();
                     loadChart(pair.symbol);
                 });
 
-                listContainer.appendChild(li);
+                sidebar.appendChild(wrapper);
             });
         }
 
+        // Run dashboard construction on document stability
         window.addEventListener('DOMContentLoaded', () => {
-            renderSidebar();
+            buildStreamingSidebar();
             loadChart(activeSymbol);
         });
     </script>
