@@ -127,12 +127,13 @@
             background-color: #1c2030;
             position: relative;
             height: 100%; 
-            min-height: 400px; 
         }
 
-        #tradingview_widget {
+        /* Clean full-bleed presentation frame */
+        iframe {
             width: 100%;
             height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -149,15 +150,13 @@
             <ul class="pair-list" id="pairList"></ul>
         </aside>
 
-        <main class="chart-container">
-            <div id="tradingview_widget"></div>
+        <main class="chart-container" id="chartWrapper">
+            <!-- Dynamic embed window populates instantly here -->
         </main>
     </div>
 
-    <!-- Official script library delivery file -->
-    <script type="text/javascript" src="https://tradingview.com"></script>
     <script type="text/javascript">
-        
+        // Standard baseline market data
         const targetPairs = [
             { display: 'EUR / USD', symbol: 'FX:EURUSD', price: '1.0842', change: '+0.14%', up: true },
             { display: 'GBP / USD', symbol: 'FX:GBPUSD', price: '1.2635', change: '-0.08%', up: false },
@@ -167,28 +166,18 @@
             { display: 'Gold / USD', symbol: 'OANDA:XAUUSD', price: '2178.40', change: '+1.12%', up: true }
         ];
 
-        // FIXED: Pointing explicitly to the first item index inside the array data [0]
         let activeSymbol = targetPairs[0].symbol;
 
+        // FIXED: Replaced JavaScript tracking scripts with standard sandboxed iframes
         function loadChart(symbol) {
-            if (typeof TradingView !== 'undefined') {
-                new TradingView.widget({
-                    "width": "100%",
-                    "height": "100%",
-                    "symbol": symbol,
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1", 
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "allow_symbol_change": false,
-                    "container_id": "tradingview_widget"
-                });
-            } else {
-                document.getElementById('tradingview_widget').innerHTML = 
-                    `<div style="padding: 20px; color: #f23645;">Error: Core library tracking script failed to load. Ensure ad-blockers are disabled.</div>`;
-            }
+            const container = document.getElementById('chartWrapper');
+            
+            // Format symbol explicitly to work inside standard browser urls
+            const formattedSymbol = encodeURIComponent(symbol);
+            
+            container.innerHTML = `
+                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&symboledit=0&saveimage=1&toolbarbg=161a25&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${formattedSymbol}"></iframe>
+            `;
         }
 
         function renderSidebar() {
@@ -199,7 +188,6 @@
                 const li = document.createElement('li');
                 li.className = `pair-item ${pair.symbol === activeSymbol ? 'active' : ''}`;
                 
-                // FIXED: Resolved dynamic item splitting bug
                 li.innerHTML = `
                     <div>
                         <span class="pair-name">${pair.display}</span>
@@ -221,13 +209,10 @@
             });
         }
 
+        // Instant safe load handler
         window.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
-            // FIXED: Safety validation on array property extraction [0]
-            const initialSymbol = activeSymbol || targetPairs[0].symbol;
-            setTimeout(() => {
-                loadChart(initialSymbol);
-            }, 150);
+            loadChart(activeSymbol);
         });
     </script>
 </body>
