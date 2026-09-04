@@ -129,7 +129,6 @@
             height: 100%; 
         }
 
-        /* Clean full-bleed presentation frame */
         iframe {
             width: 100%;
             height: 100%;
@@ -151,32 +150,30 @@
         </aside>
 
         <main class="chart-container" id="chartWrapper">
-            <!-- Dynamic embed window populates instantly here -->
+            <!-- Dynamic sandboxed presentation frame populates here -->
         </main>
     </div>
 
     <script type="text/javascript">
         // Standard baseline market data
         const targetPairs = [
-            { display: 'EUR / USD', symbol: 'FX:EURUSD', price: '1.0842', change: '+0.14%', up: true },
-            { display: 'GBP / USD', symbol: 'FX:GBPUSD', price: '1.2635', change: '-0.08%', up: false },
-            { display: 'USD / JPY', symbol: 'FX:USDJPY', price: '151.22', change: '+0.32%', up: true },
-            { display: 'AUD / USD', symbol: 'FX:AUDUSD', price: '0.6514', change: '-0.21%', up: false },
-            { display: 'USD / CAD', symbol: 'FX:USDCAD', price: '1.3568', change: '+0.05%', up: true },
-            { display: 'Gold / USD', symbol: 'OANDA:XAUUSD', price: '2178.40', change: '+1.12%', up: true }
+            { display: 'EUR / USD', symbol: 'FX:EURUSD', price: '1.1629', change: '+0.14%', up: true },
+            { display: 'GBP / USD', symbol: 'FX:GBPUSD', price: '1.3489', change: '-0.08%', up: false },
+            { display: 'USD / JPY', symbol: 'FX:USDJPY', price: '159.22', change: '+0.32%', up: true },
+            { display: 'AUD / USD', symbol: 'FX:AUDUSD', price: '0.6714', change: '-0.21%', up: false },
+            { display: 'USD / CAD', symbol: 'FX:USDCAD', price: '1.3832', change: '+0.05%', up: true },
+            { display: 'Gold / USD', symbol: 'OANDA:XAUUSD', price: '4473.54', change: '+1.12%', up: true }
         ];
 
         let activeSymbol = targetPairs[0].symbol;
 
-        // FIXED: Replaced JavaScript tracking scripts with standard sandboxed iframes
+        // Bypasses local tracking blocks via direct structural embedded execution 
         function loadChart(symbol) {
             const container = document.getElementById('chartWrapper');
-            
-            // Format symbol explicitly to work inside standard browser urls
             const formattedSymbol = encodeURIComponent(symbol);
             
             container.innerHTML = `
-                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&symboledit=0&saveimage=1&toolbarbg=161a25&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${formattedSymbol}"></iframe>
+                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&symboledit=0&saveimage=1&toolbarbg=161a25&theme=dark&style=1&timezone=Etc%2FUTC&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart"></iframe>
             `;
         }
 
@@ -209,7 +206,6 @@
             });
         }
 
-        // Instant safe load handler
         window.addEventListener('DOMContentLoaded', () => {
             renderSidebar();
             loadChart(activeSymbol);
