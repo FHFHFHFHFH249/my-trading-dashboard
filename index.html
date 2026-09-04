@@ -54,7 +54,7 @@
             height: calc(100vh - 50px);
         }
 
-        /* Sidebar Container */
+        /* Sidebar Layout */
         .side-panel {
             width: 350px;
             background-color: #131722;
@@ -81,33 +81,33 @@
             height: 100%;
         }
 
-        /* Main Chart Area */
+        /* Chart Window Area */
         .chart-container {
             flex: 1;
             background-color: #1c2030;
             height: 100%; 
         }
     </style>
-    <!-- Load the official TradingView charting library up in the head safely -->
+    <!-- Core charting script engine loaded in head -->
     <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
-    <!-- Header navigation -->
+    <!-- Header Navigation -->
     <header>
         <div class="logo">📈 NetStation Pro</div>
         <div class="status">● Market Live</div>
     </header>
 
-    <!-- Workspace Layout -->
+    <!-- App Main Workspace -->
     <div class="workspace">
         
-        <!-- Left Side: Live Sidebar List -->
+        <!-- Left Sidebar Panel: Streaming Forex Tickers -->
         <aside class="side-panel">
             <div class="panel-header">Live Forex Watchlist</div>
             <div class="watchlist-wrapper">
                 <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                    <div class="tradingview-widget-container__widget" id="tv-watchlist"></div>
+                    <div class="tradingview-widget-container__widget"></div>
                     <script type="text/javascript" src="https://tradingview.com" async>
                     {
                         "colorTheme": "dark",
@@ -135,12 +135,12 @@
             </div>
         </aside>
 
-        <!-- Right Side: Live Interactive Chart Frame -->
+        <!-- Right Side: Live Candlestick Graph Workspace -->
         <main class="chart-container" id="tv-main-chart"></main>
 
     </div>
 
-    <!-- Official Widget Initialization Script -->
+    <!-- Official Widget Initialization Module -->
     <script type="text/javascript">
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof TradingView !== 'undefined') {
@@ -160,7 +160,7 @@
                 });
             } else {
                 document.getElementById('tv-main-chart').innerHTML = 
-                    `<div style="padding:20px; color:#f23645;">TradingView core module failed to load. Check your adblocker.</div>`;
+                    `<div style="padding:20px; color:#f23645; text-align:center;">TradingView library failing to mount. Please try forcing a browser reload.</div>`;
             }
         });
     </script>
