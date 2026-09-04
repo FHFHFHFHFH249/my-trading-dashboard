@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Forex Trading Dashboard</title>
+    <title>NetDania Pro - Live Forex Desk</title>
     <style>
         * {
             box-sizing: border-box;
@@ -54,8 +54,9 @@
             height: calc(100vh - 50px);
         }
 
+        /* Sidebar container engineered to host live-feed nodes */
         .side-panel {
-            width: 320px;
+            width: 350px;
             background-color: #131722;
             border-right: 1px solid #2a2e39;
             display: flex;
@@ -72,77 +73,13 @@
             border-bottom: 1px solid #2a2e39;
         }
 
-        .pair-list {
-            list-style: none;
-            overflow-y: auto;
+        /* Container for the real-time sidebar widget */
+        .watchlist-wrapper {
             flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
-
-        .pair-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 15px;
-            border-bottom: 1px solid #1e222d;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .pair-item:hover {
-            background-color: #1e222d;
-        }
-
-        .pair-item.active {
-            background-color: #2a2e39;
-            border-left: 4px solid #2962ff;
-        }
-
-        .pair-name {
-            font-weight: bold;
-            font-size: 15px;
-            color: #ffffff;
-        }
-
-        .pair-market {
-            font-size: 11px;
-            color: #787b86;
-            display: block;
-            margin-top: 4px;
-        }
-
-        .pair-meta {
-            text-align: right;
-        }
-
-        .pair-price {
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 15px;
-            color: #ffffff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: background 0.1s ease, color 0.1s ease;
-        }
-
-        /* Ticking animation frameworks for market opening hours */
-        .flash-green {
-            background-color: rgba(8, 153, 129, 0.3) !important;
-            color: #26a69a !important;
-        }
-
-        .flash-red {
-            background-color: rgba(242, 54, 69, 0.3) !important;
-            color: #ef5350 !important;
-        }
-
-        .pair-change {
-            font-size: 12px;
-            margin-top: 4px;
-            font-weight: bold;
-        }
-
-        .change-up { color: #089981; }
-        .change-down { color: #f23645; }
 
         .chart-container {
             flex: 1;
@@ -162,133 +99,71 @@
 
     <header>
         <div class="logo">📈 NetStation Pro</div>
-        <div class="status" id="market-status">● Forex Live</div>
+        <div class="status">● Market Live</div>
     </header>
 
     <div class="workspace">
+        <!-- Sidebar containing streaming live prices -->
         <aside class="side-panel">
-            <div class="panel-header">Forex Watchlist</div>
-            <ul class="pair-list" id="pairList"></ul>
+            <div class="panel-header">Live Forex Watchlist</div>
+            <div class="watchlist-wrapper">
+                <!-- Official TradingView Market Watchlist Widget -->
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "colorTheme": "dark",
+                        "dateRange": "12M",
+                        "showChart": false,
+                        "locale": "en",
+                        "largeChartUrl": "",
+                        "isTransparent": true,
+                        "showSymbolLogo": true,
+                        "showFloatingTooltip": false,
+                        "tabs": [
+                            {
+                                "title": "Forex",
+                                "symbols": [
+                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
+                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
+                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
+                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
+                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
+                                    { "s": "FX:USDCHF", "d": "USD / CHF" }
+                                ],
+                                "originalTitle": "Forex"
+                            }
+                        ]
+                    }
+                    </script>
+                </div>
+            </div>
         </aside>
 
-        <main class="chart-container" id="chartWrapper"></main>
+        <!-- Main Chart Display window linking the system together -->
+        <main class="chart-container" id="chartWrapper">
+            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                <div id="tradingview_main_chart" style="height: 100%; width: 100%;"></div>
+                <script type="text/javascript" src="https://tradingview.com"></script>
+                <script type="text/javascript">
+                    new TradingView.widget({
+                        "width": "100%",
+                        "height": "100%",
+                        "symbol": "FX:EURUSD",
+                        "interval": "D",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "enable_publishing": false,
+                        "hide_side_toolbar": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_main_chart"
+                    });
+                </script>
+            </div>
+        </main>
     </div>
 
-    <script type="text/javascript">
-        // Dedicated, strict major global Forex pairs
-        const targetPairs = [
-            { display: 'EUR / USD', symbol: 'FX:EURUSD', streamId: 'EURUSD', price: '1.0842', change: '+0.14%', up: true },
-            { display: 'GBP / USD', symbol: 'FX:GBPUSD', streamId: 'GBPUSD', price: '1.2635', change: '-0.08%', up: false },
-            { display: 'USD / JPY', symbol: 'FX:USDJPY', streamId: 'USDJPY', price: '151.22', change: '+0.32%', up: true },
-            { display: 'AUD / USD', symbol: 'FX:AUDUSD', streamId: 'AUDUSD', price: '0.6514', change: '-0.21%', up: false },
-            { display: 'USD / CAD', symbol: 'FX:USDCAD', streamId: 'USDCAD', price: '1.3568', change: '+0.05%', up: true },
-            { display: 'USD / CHF', symbol: 'FX:USDCHF', streamId: 'USDCHF', price: '0.8845', change: '-0.12%', up: false }
-        ];
-
-        let activeSymbol = targetPairs[0].symbol;
-        let ws;
-
-        function loadChart(symbol) {
-            const container = document.getElementById('chartWrapper');
-            const formattedSymbol = encodeURIComponent(symbol);
-            container.innerHTML = `
-                <iframe src="https://tradingview.com{formattedSymbol}&interval=D&theme=dark&style=1&timezone=Etc%2FUTC&locale=en"></iframe>
-            `;
-        }
-
-        function renderSidebar() {
-            const listContainer = document.getElementById('pairList');
-            listContainer.innerHTML = '';
-
-            targetPairs.forEach(pair => {
-                const li = document.createElement('li');
-                li.className = `pair-item ${pair.symbol === activeSymbol ? 'active' : ''}`;
-                
-                li.innerHTML = `
-                    <div>
-                        <span class="pair-name">${pair.display}</span>
-                        <span class="pair-market">${pair.symbol}</span>
-                    </div>
-                    <div class="pair-meta">
-                        <div class="pair-price" id="price-${pair.streamId}">${pair.price}</div>
-                        <div class="pair-change ${pair.up ? 'change-up' : 'change-down'}" id="change-${pair.streamId}">${pair.change}</div>
-                    </div>
-                `;
-
-                li.addEventListener('click', () => {
-                    activeSymbol = pair.symbol;
-                    renderSidebar();
-                    loadChart(pair.symbol);
-                });
-
-                listContainer.appendChild(li);
-            });
-        }
-
-        // Direct WebSocket stream engine mapping strictly to forex pipelines
-        function initForexStream() {
-            // Connecting directly to a raw dedicated FX broadcast channel
-            ws = new WebSocket('wss://://fxratesapi.com');
-
-            ws.onopen = () => {
-                document.getElementById('market-status').innerText = "● Forex Live";
-            };
-
-            ws.onmessage = (event) => {
-                const incoming = JSON.parse(event.data);
-                if (incoming && incoming.ticks) {
-                    Object.keys(incoming.ticks).forEach(key => {
-                        // Locate matching asset pair in our current view tracking loop
-                        const pair = targetPairs.find(p => p.streamId === key);
-                        if (pair) {
-                            const priceEl = document.getElementById(`price-${pair.streamId}`);
-                            const changeEl = document.getElementById(`change-${pair.streamId}`);
-                            
-                            const newPrice = parseFloat(incoming.ticks[key].price);
-                            const oldPrice = parseFloat(pair.price);
-                            const changePercent = parseFloat(incoming.ticks[key].changePercent || 0);
-
-                            pair.price = newPrice.toFixed(4);
-                            pair.change = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%';
-                            pair.up = changePercent >= 0;
-
-                            if (priceEl) {
-                                priceEl.innerText = pair.price;
-                                
-                                if (newPrice > oldPrice) {
-                                    priceEl.className = 'pair-price flash-green';
-                                } else if (newPrice < oldPrice) {
-                                    priceEl.className = 'pair-price flash-red';
-                                }
-                                
-                                setTimeout(() => {
-                                    priceEl.className = 'pair-price';
-                                }, 150);
-                            }
-
-                            if (changeEl) {
-                                changeEl.innerText = pair.change;
-                                changeEl.className = `pair-change ${pair.up ? 'change-up' : 'change-down'}`;
-                            }
-                        }
-                    });
-                }
-            };
-
-            ws.onerror = () => {
-                document.getElementById('market-status').innerText = "● Reconnecting Stream";
-            };
-
-            ws.onclose = () => {
-                setTimeout(initForexStream, 5000);
-            };
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderSidebar();
-            loadChart(activeSymbol);
-            initForexStream();
-        });
-    </script>
 </body>
 </html>
