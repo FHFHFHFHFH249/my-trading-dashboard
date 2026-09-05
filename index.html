@@ -41,9 +41,7 @@
     gap:8px;
   }
   .brand{display:flex;align-items:baseline;gap:10px;}
-  .brand-mark{
-    font-weight:700;font-size:18px;letter-spacing:0.02em;color:var(--text);
-  }
+  .brand-mark{font-weight:700;font-size:18px;letter-spacing:0.02em;color:var(--text);}
   .brand-mark span{color:var(--accent);}
   .brand-sub{font-size:12px;color:var(--text-dim);}
   .sessions{display:flex;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
@@ -55,14 +53,14 @@
     padding:5px 10px;border-radius:3px;cursor:pointer;transition:border-color .15s,color .15s;
   }
   .refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .refresh-btn:focus-visible, .refresh-btn:focus{outline:2px solid var(--accent);outline-offset:2px;}
+  .refresh-btn:focus-visible,.refresh-btn:focus{outline:2px solid var(--accent);outline-offset:2px;}
 
   /* ---------- layout ---------- */
   .layout{flex:1;display:flex;overflow:hidden;min-height:0;}
 
   /* ---------- sidebar ---------- */
   .sidebar{
-    width:300px;flex-shrink:0;
+    width:320px;flex-shrink:0;
     background:var(--panel);
     border-right:1px solid var(--border);
     display:flex;flex-direction:column;
@@ -74,8 +72,29 @@
     color:var(--text);padding:8px 10px;border-radius:4px;font-size:13px;
     font-family:'Space Grotesk',sans-serif;
   }
-  .sidebar-head input:focus-visible, .sidebar-head input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .sidebar-head input:focus-visible,.sidebar-head input:focus{outline:2px solid var(--accent);outline-offset:1px;}
   .sidebar-head input::placeholder{color:var(--text-dim);}
+
+  .add-symbol{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .add-symbol-row{display:flex;gap:6px;}
+  .add-symbol select{
+    background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    font-size:12px;border-radius:4px;padding:7px 6px;font-family:'Space Grotesk',sans-serif;
+    flex-shrink:0;width:108px;
+  }
+  .add-symbol input{
+    flex:1;min-width:0;background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    padding:7px 8px;border-radius:4px;font-size:12px;font-family:'Space Grotesk',sans-serif;
+  }
+  .add-symbol select:focus-visible,.add-symbol input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .add-symbol button{
+    background:var(--accent);border:none;color:#1a1200;font-weight:600;
+    padding:7px 12px;border-radius:4px;cursor:pointer;font-size:12px;flex-shrink:0;
+  }
+  .add-symbol button:hover{filter:brightness(1.08);}
+  .add-symbol button:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  .add-hint{font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.4;}
+
   .quote-list{overflow-y:auto;flex:1;padding-bottom:12px;}
   .section-label{
     padding:10px 14px 4px;font-size:11px;color:var(--text-dim);
@@ -96,13 +115,26 @@
   .pair-chg.up{color:var(--up);}
   .pair-chg.down{color:var(--down);}
   .no-match{padding:16px;color:var(--text-dim);font-size:13px;}
+  .row-remove{
+    background:none;border:none;color:var(--text-dim);font-size:15px;cursor:pointer;
+    line-height:1;padding:0 0 0 8px;flex-shrink:0;
+  }
+  .row-remove:hover{color:var(--down);}
+
+  /* custom (TradingView-priced) rows */
+  .quote-row.tv-row{flex-direction:column;align-items:stretch;cursor:default;padding:8px 14px;}
+  .tv-row-top{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .tv-row-top .pair-name{cursor:pointer;}
+  .tv-mini-quote{margin-top:4px;width:100%;}
 
   /* ---------- chart grid ---------- */
   .chart-grid{
     flex:1;display:grid;
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:1fr 1fr;
+    grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
+    grid-auto-rows:340px;
+    align-content:start;
     gap:1px;background:var(--border);
+    overflow-y:auto;
     min-height:0;
   }
   .chart-panel{
@@ -123,23 +155,36 @@
   .close-btn:hover{color:var(--down);}
   .close-btn:focus-visible{outline:2px solid var(--accent);}
   .tv-container{flex:1;min-height:0;}
-  .placeholder{
-    flex:1;display:flex;align-items:center;justify-content:center;
-    color:var(--text-dim);font-size:13px;text-align:center;padding:20px;
+
+  .add-tile{
+    background:var(--panel);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;cursor:pointer;color:var(--text-dim);
+    border:1px dashed var(--border);
   }
+  .add-tile:hover{color:var(--accent);border-color:var(--accent);}
+  .add-tile .plus{font-size:28px;line-height:1;}
+  .add-tile .label{font-size:12px;}
+  .add-tile.full{cursor:default;}
+  .add-tile.full:hover{color:var(--text-dim);border-color:var(--border);}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(12px);
+    background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    padding:9px 16px;border-radius:6px;font-size:13px;
+    opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+    z-index:50;box-shadow:0 6px 18px rgba(0,0,0,.4);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ---------- responsive ---------- */
   @media (max-width: 860px){
     .layout{flex-direction:column;}
-    .sidebar{
-      width:100%;height:190px;border-right:none;border-bottom:1px solid var(--border);
-    }
+    .sidebar{width:100%;height:280px;border-right:none;border-bottom:1px solid var(--border);}
     .sessions{display:none;}
-    .chart-grid{
-      grid-template-columns:1fr;grid-template-rows:none;
-      overflow-y:auto;
-    }
-    .chart-panel{min-height:280px;}
+    .chart-grid{grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));}
+    .add-symbol select{width:92px;}
   }
 </style>
 </head>
@@ -165,7 +210,21 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-head">
-        <input type="text" id="searchBox" placeholder="Filter pairs, e.g. EUR" autocomplete="off">
+        <input type="text" id="searchBox" placeholder="Filter your list…" autocomplete="off">
+
+        <div class="add-symbol">
+          <div class="add-symbol-row">
+            <select id="addType">
+              <option value="forex">Forex pair</option>
+              <option value="crypto">Crypto</option>
+              <option value="metal">Metal</option>
+              <option value="other">Other symbol</option>
+            </select>
+            <input type="text" id="addInput" placeholder="e.g. USDTHB" autocomplete="off">
+            <button id="addBtn" type="button">Add</button>
+          </div>
+          <div class="add-hint" id="addHint">6-letter code, e.g. USDTHB or EURNOK.</div>
+        </div>
       </div>
       <div class="quote-list" id="quoteList"></div>
     </aside>
@@ -175,10 +234,12 @@
 
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 (function(){
 
-  /* ---------------- pair catalogue ---------------- */
+  /* ---------------- built-in pair catalogue ---------------- */
   var GROUPS = [
     { label: "Majors", pairs: ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","USDCAD","NZDUSD"] },
     { label: "Crosses", pairs: ["EURGBP","EURJPY","GBPJPY","EURCHF","AUDJPY","EURAUD","GBPCHF","NZDJPY","CADJPY","CHFJPY","AUDCAD","AUDNZD","EURCAD","GBPAUD","GBPCAD","GBPNZD"] },
@@ -187,14 +248,96 @@
   var ALL_PAIRS = GROUPS.reduce(function(acc,g){ return acc.concat(g.pairs); }, []);
 
   var DEFAULT_SLOTS = ["EURUSD","GBPUSD","USDJPY","AUDUSD"];
-  var SLOT_COUNT = 4;
-  var slots = DEFAULT_SLOTS.slice(0, SLOT_COUNT);
+  var MAX_SLOTS = 9;
 
-  var latestRates = null;     // current poll
-  var previousRates = null;   // prior poll, for session change indicator
+  var METAL_MAP = {
+    GOLD:{ symbol:"OANDA:XAUUSD", label:"Gold" },
+    XAU:{ symbol:"OANDA:XAUUSD", label:"Gold" },
+    SILVER:{ symbol:"OANDA:XAGUSD", label:"Silver" },
+    XAG:{ symbol:"OANDA:XAGUSD", label:"Silver" },
+    OIL:{ symbol:"TVC:USOIL", label:"Crude Oil" },
+    WTI:{ symbol:"TVC:USOIL", label:"Crude Oil" },
+    CRUDE:{ symbol:"TVC:USOIL", label:"Crude Oil" },
+    PLATINUM:{ symbol:"OANDA:XPTUSD", label:"Platinum" },
+    XPT:{ symbol:"OANDA:XPTUSD", label:"Platinum" },
+    PALLADIUM:{ symbol:"OANDA:XPDUSD", label:"Palladium" },
+    XPD:{ symbol:"OANDA:XPDUSD", label:"Palladium" }
+  };
+
+  var ADD_HINTS = {
+    forex: "6-letter code, e.g. USDTHB or EURNOK.",
+    crypto: "Ticker only, e.g. BTC, ETH, SOL. Priced in USDT.",
+    metal: "GOLD, SILVER, OIL, PLATINUM or PALLADIUM.",
+    other: "Any TradingView symbol, e.g. NASDAQ:AAPL or BINANCE:DOGEUSDT."
+  };
+
+  /* asset registry: key -> {type:'forex'|'tv', pair|tvSymbol, label, removable} */
+  var assetsByKey = {};
+  ALL_PAIRS.forEach(function(p){
+    assetsByKey[p] = { type:"forex", pair:p, label:p.slice(0,3)+"/"+p.slice(3,6), removable:false };
+  });
+
+  var customEntries = loadCustomEntries();
+  customEntries.forEach(function(e){ registerCustomEntry(e, false); });
+
+  var slots = loadSlots();
+  if(!slots || !slots.length){
+    slots = DEFAULT_SLOTS.slice();
+  } else {
+    slots = slots.filter(function(k){ return !!assetsByKey[k]; });
+    if(!slots.length) slots = DEFAULT_SLOTS.slice();
+  }
+
+  var latestRates = null;
+  var previousRates = null;
+
+  /* ---------------- persistence ---------------- */
+  function saveCustomEntries(){
+    try{ localStorage.setItem("fxdesk_custom_entries", JSON.stringify(customEntries)); }catch(e){}
+  }
+  function loadCustomEntries(){
+    try{
+      var raw = localStorage.getItem("fxdesk_custom_entries");
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return [];
+  }
+  function saveSlots(){
+    try{ localStorage.setItem("fxdesk_slots", JSON.stringify(slots)); }catch(e){}
+  }
+  function loadSlots(){
+    try{
+      var raw = localStorage.getItem("fxdesk_slots");
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  }
+
+  function registerCustomEntry(entry){
+    if(entry.kind === "forex"){
+      assetsByKey[entry.pair] = {
+        type:"forex", pair:entry.pair,
+        label:entry.pair.slice(0,3)+"/"+entry.pair.slice(3,6),
+        removable:true
+      };
+    } else {
+      assetsByKey[entry.id] = {
+        type:"tv", tvSymbol:entry.tvSymbol, label:entry.label, removable:true
+      };
+    }
+  }
+
+  /* ---------------- toast ---------------- */
+  var toastTimer = null;
+  function showToast(msg){
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2600);
+  }
 
   /* ---------------- rate math ---------------- */
-  // price(BASE/QUOTE) given USD-based rates table (rates.USD === 1)
   function pairPrice(rates, pair){
     var base = pair.slice(0,3), quote = pair.slice(3,6);
     if(!rates[base] || !rates[quote]) return null;
@@ -202,27 +345,90 @@
   }
   function decimalsFor(pair){ return pair.endsWith("JPY") ? 3 : 5; }
 
-  /* ---------------- fetch rates ---------------- */
+  /* ---------------- fetch reference rates ---------------- */
   function fetchRates(){
     document.getElementById("updatedLabel").textContent = "Refreshing…";
     fetch("https://open.er-api.com/v6/latest/USD")
-      .then(function(res){
-        if(!res.ok) throw new Error("network");
-        return res.json();
-      })
+      .then(function(res){ if(!res.ok) throw new Error("network"); return res.json(); })
       .then(function(data){
         if(!data || !data.rates) throw new Error("bad payload");
         if(latestRates) previousRates = latestRates;
         latestRates = data.rates;
         latestRates.USD = 1;
-        var label = "Rates as of " + (data.time_last_update_utc || "unknown time");
-        document.getElementById("updatedLabel").textContent = label;
+        document.getElementById("updatedLabel").textContent = "Rates as of " + (data.time_last_update_utc || "unknown time");
         renderQuoteList(document.getElementById("searchBox").value);
         updateChartHeaders();
       })
       .catch(function(){
         document.getElementById("updatedLabel").textContent = "Rates unavailable — retrying shortly";
       });
+  }
+
+  /* ---------------- add symbol form ---------------- */
+  function addSymbol(){
+    var type = document.getElementById("addType").value;
+    var raw = document.getElementById("addInput").value.trim();
+    if(!raw){ showToast("Type a symbol first."); return; }
+
+    if(type === "forex"){
+      var code = raw.replace(/[^A-Za-z]/g,"").toUpperCase();
+      if(code.length !== 6){ showToast("Enter a 6-letter pair, e.g. USDTHB."); return; }
+      var base = code.slice(0,3), quote = code.slice(3,6);
+      if(latestRates && (!latestRates[base] || !latestRates[quote])){
+        showToast("Unrecognized currency code."); return;
+      }
+      if(assetsByKey[code]){ showToast(code + " is already in your list."); selectListVisible(code); return; }
+      var entry = { id:code, kind:"forex", pair:code };
+      registerCustomEntry(entry);
+      customEntries.push(entry);
+    } else {
+      var tvSymbol, label;
+      if(type === "crypto"){
+        var c = raw.replace(/[^A-Za-z]/g,"").toUpperCase().replace(/USDT?$/,"");
+        if(!c){ showToast("Enter a coin ticker, e.g. BTC."); return; }
+        tvSymbol = "BINANCE:" + c + "USDT";
+        label = c + "/USDT";
+      } else if(type === "metal"){
+        var m = raw.trim().toUpperCase();
+        var known = METAL_MAP[m];
+        tvSymbol = known ? known.symbol : ("OANDA:" + m + "USD");
+        label = known ? known.label : (m.charAt(0) + m.slice(1).toLowerCase());
+      } else {
+        tvSymbol = raw.toUpperCase();
+        label = tvSymbol.indexOf(":") !== -1 ? tvSymbol.split(":")[1] : tvSymbol;
+      }
+      var dup = Object.keys(assetsByKey).some(function(k){
+        return assetsByKey[k].type === "tv" && assetsByKey[k].tvSymbol === tvSymbol;
+      });
+      if(dup){ showToast(label + " is already in your list."); return; }
+      var id = "custom_" + Date.now() + "_" + Math.floor(Math.random()*1000);
+      var entry2 = { id:id, kind:"tv", tvSymbol:tvSymbol, label:label };
+      registerCustomEntry(entry2);
+      customEntries.push(entry2);
+    }
+
+    saveCustomEntries();
+    document.getElementById("addInput").value = "";
+    renderQuoteList(document.getElementById("searchBox").value);
+    showToast("Added to your list.");
+  }
+
+  function removeCustomEntry(key){
+    delete assetsByKey[key];
+    customEntries = customEntries.filter(function(e){
+      return (e.kind === "forex" ? e.pair : e.id) !== key;
+    });
+    var slotIdx = slots.indexOf(key);
+    if(slotIdx !== -1) slots.splice(slotIdx, 1);
+    saveCustomEntries();
+    saveSlots();
+    renderQuoteList(document.getElementById("searchBox").value);
+    renderChartGrid();
+  }
+
+  function selectListVisible(key){
+    var row = document.querySelector('[data-key="' + key + '"]');
+    if(row) row.scrollIntoView({ block:"center", behavior:"smooth" });
   }
 
   /* ---------------- sidebar rendering ---------------- */
@@ -233,21 +439,28 @@
     var anyMatch = false;
 
     GROUPS.forEach(function(group){
-      var visiblePairs = group.pairs.filter(function(p){
-        return !filter || p.indexOf(filter) !== -1;
-      });
+      var visiblePairs = group.pairs.filter(function(p){ return !filter || p.indexOf(filter) !== -1; });
       if(visiblePairs.length === 0) return;
       anyMatch = true;
-
-      var label = document.createElement("div");
-      label.className = "section-label";
-      label.textContent = group.label;
-      container.appendChild(label);
-
-      visiblePairs.forEach(function(pair){
-        container.appendChild(buildRow(pair));
-      });
+      container.appendChild(buildSectionLabel(group.label));
+      visiblePairs.forEach(function(pair){ container.appendChild(buildRow(pair)); });
     });
+
+    if(customEntries.length){
+      var visibleCustom = customEntries.filter(function(e){
+        if(!filter) return true;
+        var hay = (e.kind === "forex" ? e.pair : (e.label + " " + e.tvSymbol)).toUpperCase();
+        return hay.indexOf(filter) !== -1;
+      });
+      if(visibleCustom.length){
+        anyMatch = true;
+        container.appendChild(buildSectionLabel("My symbols"));
+        visibleCustom.forEach(function(e){
+          if(e.kind === "forex") container.appendChild(buildRow(e.pair));
+          else container.appendChild(buildTVRow(e.id));
+        });
+      }
+    }
 
     if(!anyMatch){
       var empty = document.createElement("div");
@@ -257,16 +470,25 @@
     }
   }
 
-  function buildRow(pair){
+  function buildSectionLabel(text){
+    var label = document.createElement("div");
+    label.className = "section-label";
+    label.textContent = text;
+    return label;
+  }
+
+  function buildRow(key){
+    var asset = assetsByKey[key];
+    var pair = asset.pair;
     var row = document.createElement("div");
-    row.className = "quote-row" + (slots.indexOf(pair) !== -1 ? " selected" : "");
+    row.className = "quote-row" + (slots.indexOf(key) !== -1 ? " selected" : "");
     row.setAttribute("tabindex", "0");
     row.setAttribute("role", "button");
-    row.dataset.pair = pair;
+    row.dataset.key = key;
 
     var name = document.createElement("span");
     name.className = "pair-name";
-    name.textContent = pair.slice(0,3) + "/" + pair.slice(3,6);
+    name.textContent = asset.label;
 
     var price = document.createElement("span");
     price.className = "pair-price";
@@ -293,7 +515,7 @@
           chg.textContent = "—";
         }
       } else {
-        price.textContent = "—";
+        price.textContent = "n/a";
       }
     } else {
       price.textContent = "…";
@@ -303,35 +525,81 @@
     row.appendChild(price);
     row.appendChild(chg);
 
-    row.addEventListener("click", function(){ selectPair(pair); });
+    if(asset.removable){
+      var rm = document.createElement("button");
+      rm.className = "row-remove";
+      rm.setAttribute("aria-label", "Remove " + asset.label + " from list");
+      rm.textContent = "×";
+      rm.addEventListener("click", function(e){ e.stopPropagation(); removeCustomEntry(key); });
+      row.appendChild(rm);
+    }
+
+    row.addEventListener("click", function(){ selectPair(key); });
     row.addEventListener("keydown", function(e){
-      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); selectPair(pair); }
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); selectPair(key); }
     });
 
     return row;
   }
 
+  function buildTVRow(key){
+    var asset = assetsByKey[key];
+    var row = document.createElement("div");
+    row.className = "quote-row tv-row" + (slots.indexOf(key) !== -1 ? " selected" : "");
+    row.dataset.key = key;
+
+    var top = document.createElement("div");
+    top.className = "tv-row-top";
+    top.setAttribute("tabindex", "0");
+    top.setAttribute("role", "button");
+
+    var name = document.createElement("span");
+    name.className = "pair-name";
+    name.textContent = asset.label;
+    top.appendChild(name);
+
+    var rm = document.createElement("button");
+    rm.className = "row-remove";
+    rm.setAttribute("aria-label", "Remove " + asset.label + " from list");
+    rm.textContent = "×";
+    rm.addEventListener("click", function(e){ e.stopPropagation(); removeCustomEntry(key); });
+    top.appendChild(rm);
+
+    top.addEventListener("click", function(){ selectPair(key); });
+    top.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); selectPair(key); }
+    });
+
+    row.appendChild(top);
+
+    var mini = document.createElement("div");
+    mini.className = "tv-mini-quote";
+    row.appendChild(mini);
+    mountSingleQuote(mini, asset.tvSymbol);
+
+    return row;
+  }
+
   /* ---------------- selection logic ---------------- */
-  function selectPair(pair){
-    var idx = slots.indexOf(pair);
+  function selectPair(key){
+    var idx = slots.indexOf(key);
     if(idx !== -1){
-      slots[idx] = null; // deselect
+      slots.splice(idx, 1);
     } else {
-      var emptyIdx = slots.indexOf(null);
-      if(emptyIdx !== -1){
-        slots[emptyIdx] = pair;
-      } else {
-        // grid full — evict the longest-held slot (FIFO)
-        slots.shift();
-        slots.push(pair);
+      if(slots.length >= MAX_SLOTS){
+        showToast("Maximum " + MAX_SLOTS + " charts — remove one to add another.");
+        return;
       }
+      slots.push(key);
     }
+    saveSlots();
     renderQuoteList(document.getElementById("searchBox").value);
     renderChartGrid();
   }
 
   function removeSlot(index){
-    slots[index] = null;
+    slots.splice(index, 1);
+    saveSlots();
     renderQuoteList(document.getElementById("searchBox").value);
     renderChartGrid();
   }
@@ -340,12 +608,14 @@
   function renderChartGrid(){
     var grid = document.getElementById("chartGrid");
     grid.innerHTML = "";
-    for(var i = 0; i < SLOT_COUNT; i++){
-      grid.appendChild(buildPanel(i, slots[i]));
-    }
+    slots.forEach(function(key, index){
+      grid.appendChild(buildPanel(index, key));
+    });
+    grid.appendChild(buildAddTile());
   }
 
-  function buildPanel(index, pair){
+  function buildPanel(index, key){
+    var asset = assetsByKey[key];
     var panel = document.createElement("div");
     panel.className = "chart-panel";
     panel.dataset.slot = index;
@@ -355,59 +625,82 @@
 
     var title = document.createElement("span");
     title.className = "chart-pair";
-    if(pair){
-      title.textContent = pair.slice(0,3) + "/" + pair.slice(3,6);
-      var dim = document.createElement("span");
-      dim.className = "dim";
-      dim.dataset.slotPrice = index;
-      if(latestRates){
-        var v = pairPrice(latestRates, pair);
-        if(v != null) dim.textContent = v.toFixed(decimalsFor(pair));
+    title.textContent = asset.label;
+
+    if(asset.type === "forex" && latestRates){
+      var v = pairPrice(latestRates, asset.pair);
+      if(v != null){
+        var dim = document.createElement("span");
+        dim.className = "dim";
+        dim.dataset.slotPrice = index;
+        dim.textContent = v.toFixed(decimalsFor(asset.pair));
+        title.appendChild(dim);
       }
-      title.appendChild(dim);
-    } else {
-      title.textContent = "Empty slot";
     }
     head.appendChild(title);
 
-    if(pair){
-      var closeBtn = document.createElement("button");
-      closeBtn.className = "close-btn";
-      closeBtn.setAttribute("aria-label", "Remove chart");
-      closeBtn.textContent = "×";
-      closeBtn.addEventListener("click", function(){ removeSlot(index); });
-      head.appendChild(closeBtn);
-    }
+    var closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn";
+    closeBtn.setAttribute("aria-label", "Remove chart");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", function(){ removeSlot(index); });
+    head.appendChild(closeBtn);
 
     panel.appendChild(head);
 
-    if(pair){
-      var tvContainer = document.createElement("div");
-      tvContainer.className = "tv-container";
-      panel.appendChild(tvContainer);
-      mountTradingViewChart(tvContainer, pair);
-    } else {
-      var ph = document.createElement("div");
-      ph.className = "placeholder";
-      ph.textContent = "Select a pair from the list to load its chart.";
-      panel.appendChild(ph);
-    }
+    var tvContainer = document.createElement("div");
+    tvContainer.className = "tv-container";
+    panel.appendChild(tvContainer);
+
+    var fullSymbol = asset.type === "forex" ? ("FX_IDC:" + asset.pair) : asset.tvSymbol;
+    mountTradingViewChart(tvContainer, fullSymbol);
 
     return panel;
+  }
+
+  function buildAddTile(){
+    var full = slots.length >= MAX_SLOTS;
+    var tile = document.createElement("div");
+    tile.className = "add-tile" + (full ? " full" : "");
+    tile.setAttribute("tabindex", "0");
+    tile.setAttribute("role", "button");
+
+    var plus = document.createElement("div");
+    plus.className = "plus";
+    plus.textContent = "+";
+    var label = document.createElement("div");
+    label.className = "label";
+    label.textContent = full ? "Maximum charts reached" : "Add chart";
+
+    tile.appendChild(plus);
+    tile.appendChild(label);
+
+    function trigger(){
+      if(full){ showToast("Maximum " + MAX_SLOTS + " charts — remove one to add another."); return; }
+      var box = document.getElementById("searchBox");
+      box.focus();
+      box.scrollIntoView({ block:"center", behavior:"smooth" });
+    }
+    tile.addEventListener("click", trigger);
+    tile.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); trigger(); } });
+
+    return tile;
   }
 
   function updateChartHeaders(){
     document.querySelectorAll("[data-slot-price]").forEach(function(el){
       var idx = parseInt(el.dataset.slotPrice, 10);
-      var pair = slots[idx];
-      if(pair && latestRates){
-        var v = pairPrice(latestRates, pair);
-        if(v != null) el.textContent = v.toFixed(decimalsFor(pair));
+      var key = slots[idx];
+      var asset = key ? assetsByKey[key] : null;
+      if(asset && asset.type === "forex" && latestRates){
+        var v = pairPrice(latestRates, asset.pair);
+        if(v != null) el.textContent = v.toFixed(decimalsFor(asset.pair));
       }
     });
   }
 
-  function mountTradingViewChart(container, pair){
+  /* ---------------- TradingView embeds ---------------- */
+  function mountTradingViewChart(container, fullSymbol){
     var widgetContainer = document.createElement("div");
     widgetContainer.className = "tradingview-widget-container";
     widgetContainer.style.height = "100%";
@@ -425,7 +718,7 @@
     script.async = true;
     script.text = JSON.stringify({
       autosize: true,
-      symbol: "FX_IDC:" + pair,
+      symbol: fullSymbol,
       interval: "15",
       timezone: "Etc/UTC",
       theme: "dark",
@@ -444,22 +737,51 @@
     container.appendChild(widgetContainer);
   }
 
+  function mountSingleQuote(container, tvSymbol){
+    var widgetContainer = document.createElement("div");
+    widgetContainer.className = "tradingview-widget-container";
+    widgetContainer.style.width = "100%";
+
+    var widgetDiv = document.createElement("div");
+    widgetDiv.className = "tradingview-widget-container__widget";
+    widgetContainer.appendChild(widgetDiv);
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js";
+    script.async = true;
+    script.text = JSON.stringify({
+      symbol: tvSymbol,
+      width: "100%",
+      colorTheme: "dark",
+      isTransparent: true,
+      locale: "en"
+    });
+    widgetContainer.appendChild(script);
+    container.appendChild(widgetContainer);
+  }
+
   /* ---------------- session clocks ---------------- */
   function tickClocks(){
     var now = new Date();
-    var opts = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+    var opts = { hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false };
     try{
       document.getElementById("clk-london").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"Europe/London"}, opts)).format(now);
       document.getElementById("clk-ny").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"America/New_York"}, opts)).format(now);
       document.getElementById("clk-tokyo").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"Asia/Tokyo"}, opts)).format(now);
-    }catch(e){ /* Intl timezone support missing — clocks stay blank, harmless */ }
+    }catch(e){}
   }
 
   /* ---------------- wire up ---------------- */
-  document.getElementById("searchBox").addEventListener("input", function(e){
-    renderQuoteList(e.target.value);
-  });
+  document.getElementById("searchBox").addEventListener("input", function(e){ renderQuoteList(e.target.value); });
   document.getElementById("refreshBtn").addEventListener("click", fetchRates);
+  document.getElementById("addBtn").addEventListener("click", addSymbol);
+  document.getElementById("addInput").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addSymbol(); } });
+  document.getElementById("addType").addEventListener("change", function(e){
+    document.getElementById("addHint").textContent = ADD_HINTS[e.target.value] || "";
+    var placeholders = { forex:"e.g. USDTHB", crypto:"e.g. BTC", metal:"e.g. GOLD", other:"e.g. NASDAQ:AAPL" };
+    document.getElementById("addInput").placeholder = placeholders[e.target.value] || "";
+  });
 
   renderQuoteList("");
   renderChartGrid();
