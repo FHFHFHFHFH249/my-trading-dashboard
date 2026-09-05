@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetDania Fullscreen Workspace</title>
     <style>
-        /* NetDania Style Dark Workspace Theme */
+        /* NetDania Professional Dark Desk Theme Style Layout */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* Top Header Navigation Control */
+        /* Top Header Area Control Bar */
         header {
             background-color: #161a25;
             padding: 0 20px;
@@ -50,7 +50,7 @@
             font-weight: 600;
         }
 
-        /* Fullscreen Layout Workspace Split Grid */
+        /* Fullscreen Workspace Grid System Splits */
         .fullscreen-desk {
             display: flex;
             flex: 1;
@@ -59,100 +59,102 @@
             background-color: #131722;
         }
 
-        /* Left Side: Advanced Quote List Matrix Container */
+        /* Left Split: NetDania Style Live Multi-Column Quote Stream */
         .quote-list-panel {
-            width: 420px;
+            width: 400px;
             height: 100%;
             border-right: 1px solid #2a2e39;
             background-color: #131722;
             overflow: hidden;
         }
 
-        /* Right Side: Primary Active Chart Screen Workspace */
+        /* Right Split: Primary Candlestick Active Chart Screen Window */
         .chart-panel {
             flex: 1;
             height: 100%;
             background-color: #1c2030;
         }
+
+        /* Responsive Layout Container Boxes */
+        .widget-box {
+            width: 100%;
+            height: 100%;
+        }
     </style>
-    <!-- ONE SINGLE SOURCE OF TRUTH: Core Widget Engine loaded safely in head -->
-    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
-    <!-- Top Navigation Control Bar -->
+    <!-- Top Dashboard Control Header Navigation -->
     <header>
         <div class="brand">NETDANIA WORKSPACE PRO</div>
-        <div class="market-badge">● Live Data Active</div>
+        <div class="market-badge">● Live Forex Feed</div>
     </header>
 
-    <!-- Fullscreen Trading Workspace Layout Split -->
+    <!-- Main Workspace Application Grid Splitting -->
     <main class="fullscreen-desk">
         
-        <!-- Left Side: NetDania Style Multi-Column Live Quote Sheet -->
-        <section class="quote-list-panel" id="tv-quote-panel"></section>
+        <!-- Left Column Side Panel: Real-Time Multi-Column Streaming Grid -->
+        <section class="quote-list-panel">
+            <div class="widget-box">
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "colorTheme": "dark",
+                        "dateRange": "12M",
+                        "showChart": false,
+                        "locale": "en",
+                        "width": "100%",
+                        "height": "100%",
+                        "isTransparent": true,
+                        "showSymbolLogo": true,
+                        "tabs": [
+                            {
+                                "title": "Forex",
+                                "symbols": [
+                                    { "s": "FX:EURUSD", "d": "EUR / USD" },
+                                    { "s": "FX:GBPUSD", "d": "GBP / USD" },
+                                    { "s": "FX:USDJPY", "d": "USD / JPY" },
+                                    { "s": "FX:AUDUSD", "d": "AUD / USD" },
+                                    { "s": "FX:USDCAD", "d": "USD / CAD" },
+                                    { "s": "FX:USDCHF", "d": "USD / CHF" },
+                                    { "s": "FX:EURGBP", "d": "EUR / GBP" },
+                                    { "s": "FX:GBPJPY", "d": "GBP / JPY" }
+                                ]
+                            }
+                        ]
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
 
-        <!-- Right Side: Advanced Candlestick Chart Display Framework -->
-        <section class="chart-panel" id="tv-chart-panel"></section>
+        <!-- Right Column Panel Area: Advanced Candlestick Chart Module -->
+        <section class="chart-panel">
+            <div class="widget-box">
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                    <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                    <script type="text/javascript" src="https://tradingview.com" async>
+                    {
+                        "autosize": true,
+                        "symbol": "FX:EURUSD",
+                        "interval": "60",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "enable_publishing": false,
+                        "hide_side_toolbar": false,
+                        "allow_symbol_change": true,
+                        "calendar": false,
+                        "support_host": "https://www.tradingview.com"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
 
     </main>
-
-    <!-- Unified Initialization Module Framework -->
-    <script type="text/javascript">
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof TradingView !== 'undefined') {
-                
-                // 1. Mount the Live Streaming Multi-Column Quote Sidebar Engine
-                new TradingView.MediumWidget({
-                    "container_id": "tv-quote-panel",
-                    "symbols": [
-                        ["EUR/USD", "FX:EURUSD"],
-                        ["GBP/USD", "FX:GBPUSD"],
-                        ["USD/JPY", "FX:USDJPY"],
-                        ["AUD/USD", "FX:AUDUSD"],
-                        ["USD/CAD", "FX:USDCAD"],
-                        ["USD/CHF", "FX:USDCHF"],
-                        ["EUR/GBP", "FX:EURGBP"],
-                        ["GBP/JPY", "FX:GBPJPY"]
-                    ],
-                    "greyText": "Quotes",
-                    "gridLineColor": "#2a2e39",
-                    "fontColor": "#ffffff",
-                    "underLineColor": "rgba(41, 98, 255, 0.3)",
-                    "trendLineColor": "#2962ff",
-                    "width": "100%",
-                    "height": "100%",
-                    "locale": "en",
-                    "colorTheme": "dark",
-                    "isTransparent": true
-                });
-
-                // 2. Mount the Main Interactive Candlestick Tracking Chart Panel Right Next To It
-                new TradingView.widget({
-                    "container_id": "tv-chart-panel",
-                    "width": "100%",
-                    "height": "100%",
-                    "symbol": "FX:EURUSD",
-                    "interval": "60",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "calendar": false
-                });
-
-            } else {
-                // Network visual safety fallback
-                document.body.innerHTML = `<div style="padding: 50px; color: #f23645; text-align: center; font-family: sans-serif;">
-                    <h2>Workspace Core Engine Failed to Load</h2>
-                    <p style="margin-top: 10px; color: #787b86;">Please check your network firewall or ensure no browser filters are disrupting tradingview.com feeds.</p>
-                </div>`;
-            }
-        });
-    </script>
 
 </body>
 </html>
