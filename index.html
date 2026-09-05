@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetDania Fullscreen Workspace</title>
     <style>
-        /* NetDania Professional Dark Workspace Layout */
+        /* Professional Dark Trading Desk Layout */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* Top Control Header Bar */
+        /* Top Header Control Bar */
         header {
             background-color: #161a25;
             padding: 0 20px;
@@ -50,8 +50,8 @@
             font-weight: 600;
         }
 
-        /* Split-Screen Workspace Layout */
-        .workspace-grid {
+        /* Fullscreen Layout Workspace Split Grid */
+        .fullscreen-desk {
             display: flex;
             flex: 1;
             height: calc(100vh - 50px);
@@ -59,51 +59,97 @@
             background-color: #131722;
         }
 
-        /* Left Split: NetDania Style Multi-Column Quote Sheet Container */
-        .quote-panel {
-            width: 450px;
+        /* Left Side: Advanced Quote List Matrix Container */
+        .quote-list-panel {
+            width: 400px;
             height: 100%;
             border-right: 1px solid #2a2e39;
             background-color: #131722;
         }
 
-        /* Right Split: Full Advanced Interactive Candlestick Chart Window */
+        /* Right Side: Primary Active Chart Screen */
         .chart-panel {
             flex: 1;
             height: 100%;
             background-color: #1c2030;
         }
-
-        /* Clean full-bleed presentation frames completely safe from domain blocks */
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
     </style>
+    <!-- Load the official TradingView core initialization library securely -->
+    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
-    <!-- Top Dashboard Header Bar -->
+    <!-- Top Navigation Header -->
     <header>
         <div class="brand">NETDANIA WORKSPACE PRO</div>
-        <div class="market-badge">● Live Forex Active</div>
+        <div class="market-badge">● Live Data Active</div>
     </header>
 
-    <!-- Main Workspace Split Grid -->
-    <div class="workspace-grid">
+    <!-- Fullscreen Trading Workspace Layout Split -->
+    <main class="fullscreen-desk">
         
-        <!-- Left Side: Sandboxed Multi-Column Live Forex Market Feed -->
-        <section class="quote-panel">
-            <iframe src="https://tradingview.com[{%22title%22:%22Forex%22,%22symbols%22:[{%22s%22:%22FX:EURUSD%22,%22d%22:%22EUR/USD%22},{%22s%22:%22FX:GBPUSD%22,%22d%22:%22GBP/USD%22},{%22s%22:%22FX:USDJPY%22,%22d%22:%22USD/JPY%22},{%22s%22:%22FX:AUDUSD%22,%22d%22:%22AUD/USD%22},{%22s%22:%22FX:USDCAD%22,%22d%22:%22USD/CAD%22},{%22s%22:%22FX:USDCHF%22,%22d%22:%22USD/CHF%22}]}]"></iframe>
-        </section>
+        <!-- Left Side: NetDania Style Multi-Column Live Quote Sheet -->
+        <section class="quote-list-panel" id="tv-quote-sidebar"></section>
 
-        <!-- Right Side: Advanced Multi-Instrument Interactive Candlestick Chart Engine -->
-        <section class="chart-panel">
-            <iframe src="https://tradingview.com"></iframe>
-        </section>
+        <!-- Right Side: Advanced Candlestick Chart Display Framework -->
+        <section class="chart-panel" id="tv-main-chart-window"></section>
 
-    </div>
+    </main>
+
+    <!-- Unified Initialization Module Framework -->
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof TradingView !== 'undefined') {
+                
+                // 1. Safely initialize the Live Streaming Multi-Column Overview Panel via verified script call
+                new TradingView.widget({
+                    "container_id": "tv-quote-sidebar",
+                    "width": "100%",
+                    "height": "100%",
+                    "symbol": "FX:EURUSD",
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "enable_publishing": false,
+                    "hide_legend": true,
+                    "hide_side_toolbar": true,
+                    "watchlist": [
+                        "FX:EURUSD",
+                        "FX:GBPUSD",
+                        "FX:USDJPY",
+                        "FX:AUDUSD",
+                        "FX:USDCAD",
+                        "FX:USDCHF"
+                    ]
+                });
+
+                // 2. Mount the Main Interactive Candlestick Tracking Chart Panel Right Next To It
+                new TradingView.widget({
+                    "container_id": "tv-main-chart-window",
+                    "width": "100%",
+                    "height": "100%",
+                    "symbol": "FX:EURUSD",
+                    "interval": "60",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "calendar": false
+                });
+
+            } else {
+                document.body.innerHTML = `<div style="padding: 50px; color: #f23645; text-align: center; font-family: sans-serif;">
+                    <h2>Workspace Core Engine Failed to Load</h2>
+                    <p style="margin-top: 10px; color: #787b86;">Ensure you have an active network connection and try reloading the page.</p>
+                </div>`;
+            }
+        });
+    </script>
 
 </body>
 </html>
