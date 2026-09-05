@@ -1,155 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetDania Fullscreen Workspace</title>
-    <style>
-        /* Professional Dark Trading Desk Layout */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FX Desk — Live Currency Charts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --panel:#121317;
+    --panel-alt:#17181d;
+    --row-hover:#1c1e24;
+    --border:#262932;
+    --text:#e7e5e0;
+    --text-dim:#868c97;
+    --accent:#ffb020;
+    --up:#22c55e;
+    --down:#ff5c5c;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    overflow:hidden;
+  }
+  #app{display:flex;flex-direction:column;height:100%;}
 
-        body {
-            background-color: #0c0d14;
-            color: #ffffff;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 18px;
+    border-bottom:1px solid var(--border);
+    background:var(--panel);
+    flex-shrink:0;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand-mark{
+    font-weight:700;font-size:18px;letter-spacing:0.02em;color:var(--text);
+  }
+  .brand-mark span{color:var(--accent);}
+  .brand-sub{font-size:12px;color:var(--text-dim);}
+  .sessions{display:flex;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
+  .session-clock b{color:var(--text);font-weight:500;}
+  .updated-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim);}
+  .refresh-btn{
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    padding:5px 10px;border-radius:3px;cursor:pointer;transition:border-color .15s,color .15s;
+  }
+  .refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .refresh-btn:focus-visible, .refresh-btn:focus{outline:2px solid var(--accent);outline-offset:2px;}
 
-        /* Top Header Control Bar */
-        header {
-            background-color: #161a25;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2a2e39;
-            height: 50px;
-        }
+  /* ---------- layout ---------- */
+  .layout{flex:1;display:flex;overflow:hidden;min-height:0;}
 
-        .brand {
-            font-weight: 800;
-            font-size: 16px;
-            color: #2962ff;
-            letter-spacing: 0.5px;
-        }
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    width:300px;flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    min-height:0;
+  }
+  .sidebar-head{padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .sidebar-head input{
+    width:100%;background:var(--panel-alt);border:1px solid var(--border);
+    color:var(--text);padding:8px 10px;border-radius:4px;font-size:13px;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .sidebar-head input:focus-visible, .sidebar-head input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .sidebar-head input::placeholder{color:var(--text-dim);}
+  .quote-list{overflow-y:auto;flex:1;padding-bottom:12px;}
+  .section-label{
+    padding:10px 14px 4px;font-size:11px;color:var(--text-dim);
+    border-top:1px solid var(--border);margin-top:4px;
+  }
+  .section-label:first-child{border-top:none;margin-top:0;}
+  .quote-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 14px;cursor:pointer;border-left:2px solid transparent;
+    transition:background .12s,border-color .12s;
+  }
+  .quote-row:hover{background:var(--row-hover);}
+  .quote-row.selected{background:var(--row-hover);border-left-color:var(--accent);}
+  .quote-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  .pair-name{font-size:13px;font-weight:500;min-width:80px;}
+  .pair-price{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);min-width:70px;text-align:right;}
+  .pair-chg{font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:56px;text-align:right;color:var(--text-dim);}
+  .pair-chg.up{color:var(--up);}
+  .pair-chg.down{color:var(--down);}
+  .no-match{padding:16px;color:var(--text-dim);font-size:13px;}
 
-        .market-badge {
-            font-size: 11px;
-            color: #4caf50;
-            background: rgba(76, 175, 80, 0.1);
-            padding: 4px 10px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
+  /* ---------- chart grid ---------- */
+  .chart-grid{
+    flex:1;display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:1px;background:var(--border);
+    min-height:0;
+  }
+  .chart-panel{
+    background:var(--bg);
+    display:flex;flex-direction:column;
+    min-height:0;min-width:0;
+  }
+  .chart-panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .chart-pair{font-size:13px;font-weight:600;letter-spacing:0.01em;}
+  .chart-pair .dim{color:var(--text-dim);font-weight:400;margin-left:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  .close-btn{
+    background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;
+    line-height:1;padding:2px 6px;border-radius:3px;
+  }
+  .close-btn:hover{color:var(--down);}
+  .close-btn:focus-visible{outline:2px solid var(--accent);}
+  .tv-container{flex:1;min-height:0;}
+  .placeholder{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    color:var(--text-dim);font-size:13px;text-align:center;padding:20px;
+  }
 
-        /* Fullscreen Layout Workspace Split Grid */
-        .fullscreen-desk {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 50px);
-            width: 100%;
-            background-color: #131722;
-        }
-
-        /* Left Side: Advanced Quote List Matrix Container */
-        .quote-list-panel {
-            width: 400px;
-            height: 100%;
-            border-right: 1px solid #2a2e39;
-            background-color: #131722;
-        }
-
-        /* Right Side: Primary Active Chart Screen */
-        .chart-panel {
-            flex: 1;
-            height: 100%;
-            background-color: #1c2030;
-        }
-    </style>
-    <!-- Load the official TradingView core initialization library securely -->
-    <script type="text/javascript" src="https://tradingview.com"></script>
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px){
+    .layout{flex-direction:column;}
+    .sidebar{
+      width:100%;height:190px;border-right:none;border-bottom:1px solid var(--border);
+    }
+    .sessions{display:none;}
+    .chart-grid{
+      grid-template-columns:1fr;grid-template-rows:none;
+      overflow-y:auto;
+    }
+    .chart-panel{min-height:280px;}
+  }
+</style>
 </head>
 <body>
+<div id="app">
 
-    <!-- Top Navigation Header -->
-    <header>
-        <div class="brand">NETDANIA WORKSPACE PRO</div>
-        <div class="market-badge">● Live Data Active</div>
-    </header>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">FX <span>Desk</span></div>
+      <div class="brand-sub">Reference rates &amp; live charts</div>
+    </div>
+    <div class="sessions">
+      <div class="session-clock">London <b id="clk-london">--:--:--</b></div>
+      <div class="session-clock">New York <b id="clk-ny">--:--:--</b></div>
+      <div class="session-clock">Tokyo <b id="clk-tokyo">--:--:--</b></div>
+    </div>
+    <div class="updated-row">
+      <span id="updatedLabel">Loading rates…</span>
+      <button class="refresh-btn" id="refreshBtn">Refresh</button>
+    </div>
+  </header>
 
-    <!-- Fullscreen Trading Workspace Layout Split -->
-    <main class="fullscreen-desk">
-        
-        <!-- Left Side: NetDania Style Multi-Column Live Quote Sheet -->
-        <section class="quote-list-panel" id="tv-quote-sidebar"></section>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <input type="text" id="searchBox" placeholder="Filter pairs, e.g. EUR" autocomplete="off">
+      </div>
+      <div class="quote-list" id="quoteList"></div>
+    </aside>
 
-        <!-- Right Side: Advanced Candlestick Chart Display Framework -->
-        <section class="chart-panel" id="tv-main-chart-window"></section>
+    <main class="chart-grid" id="chartGrid"></main>
+  </div>
 
-    </main>
+</div>
 
-    <!-- Unified Initialization Module Framework -->
-    <script type="text/javascript">
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof TradingView !== 'undefined') {
-                
-                // 1. Safely initialize the Live Streaming Multi-Column Overview Panel via verified script call
-                new TradingView.widget({
-                    "container_id": "tv-quote-sidebar",
-                    "width": "100%",
-                    "height": "100%",
-                    "symbol": "FX:EURUSD",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "hide_legend": true,
-                    "hide_side_toolbar": true,
-                    "watchlist": [
-                        "FX:EURUSD",
-                        "FX:GBPUSD",
-                        "FX:USDJPY",
-                        "FX:AUDUSD",
-                        "FX:USDCAD",
-                        "FX:USDCHF"
-                    ]
-                });
+<script>
+(function(){
 
-                // 2. Mount the Main Interactive Candlestick Tracking Chart Panel Right Next To It
-                new TradingView.widget({
-                    "container_id": "tv-main-chart-window",
-                    "width": "100%",
-                    "height": "100%",
-                    "symbol": "FX:EURUSD",
-                    "interval": "60",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "calendar": false
-                });
+  /* ---------------- pair catalogue ---------------- */
+  var GROUPS = [
+    { label: "Majors", pairs: ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","USDCAD","NZDUSD"] },
+    { label: "Crosses", pairs: ["EURGBP","EURJPY","GBPJPY","EURCHF","AUDJPY","EURAUD","GBPCHF","NZDJPY","CADJPY","CHFJPY","AUDCAD","AUDNZD","EURCAD","GBPAUD","GBPCAD","GBPNZD"] },
+    { label: "Exotics", pairs: ["USDCNY","USDSEK","USDNOK","USDMXN","USDZAR","USDTRY","USDINR"] }
+  ];
+  var ALL_PAIRS = GROUPS.reduce(function(acc,g){ return acc.concat(g.pairs); }, []);
 
+  var DEFAULT_SLOTS = ["EURUSD","GBPUSD","USDJPY","AUDUSD"];
+  var SLOT_COUNT = 4;
+  var slots = DEFAULT_SLOTS.slice(0, SLOT_COUNT);
+
+  var latestRates = null;     // current poll
+  var previousRates = null;   // prior poll, for session change indicator
+
+  /* ---------------- rate math ---------------- */
+  // price(BASE/QUOTE) given USD-based rates table (rates.USD === 1)
+  function pairPrice(rates, pair){
+    var base = pair.slice(0,3), quote = pair.slice(3,6);
+    if(!rates[base] || !rates[quote]) return null;
+    return rates[quote] / rates[base];
+  }
+  function decimalsFor(pair){ return pair.endsWith("JPY") ? 3 : 5; }
+
+  /* ---------------- fetch rates ---------------- */
+  function fetchRates(){
+    document.getElementById("updatedLabel").textContent = "Refreshing…";
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then(function(res){
+        if(!res.ok) throw new Error("network");
+        return res.json();
+      })
+      .then(function(data){
+        if(!data || !data.rates) throw new Error("bad payload");
+        if(latestRates) previousRates = latestRates;
+        latestRates = data.rates;
+        latestRates.USD = 1;
+        var label = "Rates as of " + (data.time_last_update_utc || "unknown time");
+        document.getElementById("updatedLabel").textContent = label;
+        renderQuoteList(document.getElementById("searchBox").value);
+        updateChartHeaders();
+      })
+      .catch(function(){
+        document.getElementById("updatedLabel").textContent = "Rates unavailable — retrying shortly";
+      });
+  }
+
+  /* ---------------- sidebar rendering ---------------- */
+  function renderQuoteList(filter){
+    var container = document.getElementById("quoteList");
+    container.innerHTML = "";
+    filter = (filter || "").trim().toUpperCase();
+    var anyMatch = false;
+
+    GROUPS.forEach(function(group){
+      var visiblePairs = group.pairs.filter(function(p){
+        return !filter || p.indexOf(filter) !== -1;
+      });
+      if(visiblePairs.length === 0) return;
+      anyMatch = true;
+
+      var label = document.createElement("div");
+      label.className = "section-label";
+      label.textContent = group.label;
+      container.appendChild(label);
+
+      visiblePairs.forEach(function(pair){
+        container.appendChild(buildRow(pair));
+      });
+    });
+
+    if(!anyMatch){
+      var empty = document.createElement("div");
+      empty.className = "no-match";
+      empty.textContent = "No pairs match \"" + filter + "\".";
+      container.appendChild(empty);
+    }
+  }
+
+  function buildRow(pair){
+    var row = document.createElement("div");
+    row.className = "quote-row" + (slots.indexOf(pair) !== -1 ? " selected" : "");
+    row.setAttribute("tabindex", "0");
+    row.setAttribute("role", "button");
+    row.dataset.pair = pair;
+
+    var name = document.createElement("span");
+    name.className = "pair-name";
+    name.textContent = pair.slice(0,3) + "/" + pair.slice(3,6);
+
+    var price = document.createElement("span");
+    price.className = "pair-price";
+
+    var chg = document.createElement("span");
+    chg.className = "pair-chg";
+
+    if(latestRates){
+      var val = pairPrice(latestRates, pair);
+      if(val != null){
+        price.textContent = val.toFixed(decimalsFor(pair));
+        if(previousRates){
+          var prevVal = pairPrice(previousRates, pair);
+          if(prevVal != null && prevVal !== 0){
+            var pct = ((val - prevVal) / prevVal) * 100;
+            if(Math.abs(pct) < 0.0001){
+              chg.textContent = "0.00%";
             } else {
-                document.body.innerHTML = `<div style="padding: 50px; color: #f23645; text-align: center; font-family: sans-serif;">
-                    <h2>Workspace Core Engine Failed to Load</h2>
-                    <p style="margin-top: 10px; color: #787b86;">Ensure you have an active network connection and try reloading the page.</p>
-                </div>`;
+              chg.textContent = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
+              chg.classList.add(pct > 0 ? "up" : "down");
             }
-        });
-    </script>
+          }
+        } else {
+          chg.textContent = "—";
+        }
+      } else {
+        price.textContent = "—";
+      }
+    } else {
+      price.textContent = "…";
+    }
 
+    row.appendChild(name);
+    row.appendChild(price);
+    row.appendChild(chg);
+
+    row.addEventListener("click", function(){ selectPair(pair); });
+    row.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); selectPair(pair); }
+    });
+
+    return row;
+  }
+
+  /* ---------------- selection logic ---------------- */
+  function selectPair(pair){
+    var idx = slots.indexOf(pair);
+    if(idx !== -1){
+      slots[idx] = null; // deselect
+    } else {
+      var emptyIdx = slots.indexOf(null);
+      if(emptyIdx !== -1){
+        slots[emptyIdx] = pair;
+      } else {
+        // grid full — evict the longest-held slot (FIFO)
+        slots.shift();
+        slots.push(pair);
+      }
+    }
+    renderQuoteList(document.getElementById("searchBox").value);
+    renderChartGrid();
+  }
+
+  function removeSlot(index){
+    slots[index] = null;
+    renderQuoteList(document.getElementById("searchBox").value);
+    renderChartGrid();
+  }
+
+  /* ---------------- chart grid ---------------- */
+  function renderChartGrid(){
+    var grid = document.getElementById("chartGrid");
+    grid.innerHTML = "";
+    for(var i = 0; i < SLOT_COUNT; i++){
+      grid.appendChild(buildPanel(i, slots[i]));
+    }
+  }
+
+  function buildPanel(index, pair){
+    var panel = document.createElement("div");
+    panel.className = "chart-panel";
+    panel.dataset.slot = index;
+
+    var head = document.createElement("div");
+    head.className = "chart-panel-head";
+
+    var title = document.createElement("span");
+    title.className = "chart-pair";
+    if(pair){
+      title.textContent = pair.slice(0,3) + "/" + pair.slice(3,6);
+      var dim = document.createElement("span");
+      dim.className = "dim";
+      dim.dataset.slotPrice = index;
+      if(latestRates){
+        var v = pairPrice(latestRates, pair);
+        if(v != null) dim.textContent = v.toFixed(decimalsFor(pair));
+      }
+      title.appendChild(dim);
+    } else {
+      title.textContent = "Empty slot";
+    }
+    head.appendChild(title);
+
+    if(pair){
+      var closeBtn = document.createElement("button");
+      closeBtn.className = "close-btn";
+      closeBtn.setAttribute("aria-label", "Remove chart");
+      closeBtn.textContent = "×";
+      closeBtn.addEventListener("click", function(){ removeSlot(index); });
+      head.appendChild(closeBtn);
+    }
+
+    panel.appendChild(head);
+
+    if(pair){
+      var tvContainer = document.createElement("div");
+      tvContainer.className = "tv-container";
+      panel.appendChild(tvContainer);
+      mountTradingViewChart(tvContainer, pair);
+    } else {
+      var ph = document.createElement("div");
+      ph.className = "placeholder";
+      ph.textContent = "Select a pair from the list to load its chart.";
+      panel.appendChild(ph);
+    }
+
+    return panel;
+  }
+
+  function updateChartHeaders(){
+    document.querySelectorAll("[data-slot-price]").forEach(function(el){
+      var idx = parseInt(el.dataset.slotPrice, 10);
+      var pair = slots[idx];
+      if(pair && latestRates){
+        var v = pairPrice(latestRates, pair);
+        if(v != null) el.textContent = v.toFixed(decimalsFor(pair));
+      }
+    });
+  }
+
+  function mountTradingViewChart(container, pair){
+    var widgetContainer = document.createElement("div");
+    widgetContainer.className = "tradingview-widget-container";
+    widgetContainer.style.height = "100%";
+    widgetContainer.style.width = "100%";
+
+    var widgetDiv = document.createElement("div");
+    widgetDiv.className = "tradingview-widget-container__widget";
+    widgetDiv.style.height = "100%";
+    widgetDiv.style.width = "100%";
+    widgetContainer.appendChild(widgetDiv);
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    script.text = JSON.stringify({
+      autosize: true,
+      symbol: "FX_IDC:" + pair,
+      interval: "15",
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      backgroundColor: "rgba(10, 11, 13, 1)",
+      gridColor: "rgba(38, 41, 50, 0.5)",
+      hide_top_toolbar: false,
+      hide_legend: false,
+      allow_symbol_change: true,
+      save_image: false,
+      calendar: false,
+      support_host: "https://www.tradingview.com"
+    });
+    widgetContainer.appendChild(script);
+    container.appendChild(widgetContainer);
+  }
+
+  /* ---------------- session clocks ---------------- */
+  function tickClocks(){
+    var now = new Date();
+    var opts = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+    try{
+      document.getElementById("clk-london").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"Europe/London"}, opts)).format(now);
+      document.getElementById("clk-ny").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"America/New_York"}, opts)).format(now);
+      document.getElementById("clk-tokyo").textContent = new Intl.DateTimeFormat("en-GB", Object.assign({timeZone:"Asia/Tokyo"}, opts)).format(now);
+    }catch(e){ /* Intl timezone support missing — clocks stay blank, harmless */ }
+  }
+
+  /* ---------------- wire up ---------------- */
+  document.getElementById("searchBox").addEventListener("input", function(e){
+    renderQuoteList(e.target.value);
+  });
+  document.getElementById("refreshBtn").addEventListener("click", fetchRates);
+
+  renderQuoteList("");
+  renderChartGrid();
+  fetchRates();
+  setInterval(fetchRates, 60000);
+  tickClocks();
+  setInterval(tickClocks, 1000);
+
+})();
+</script>
 </body>
 </html>
