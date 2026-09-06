@@ -127,24 +127,29 @@
   .tv-row-top .pair-name{cursor:pointer;}
   .tv-mini-quote{margin-top:4px;width:100%;}
 
-  /* ---------- chart grid ---------- */
+  /* ---------- chart area ---------- */
   .chart-grid{
-    flex:1;display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
-    grid-auto-rows:340px;
-    align-content:start;
-    gap:1px;background:var(--border);
-    overflow-y:auto;
+    flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;
+    gap:10px;padding:10px;
+    overflow:auto;
     min-height:0;
+    background:var(--bg);
   }
   .chart-panel{
-    background:var(--bg);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:6px;
     display:flex;flex-direction:column;
-    min-height:0;min-width:0;
+    min-width:280px;min-height:200px;
+    width:420px;height:320px;
+    max-width:100%;
+    resize:both;
+    overflow:hidden;
   }
   .chart-panel-head{
     display:flex;align-items:center;justify-content:space-between;
     padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0;
+    cursor:default;
   }
   .chart-pair{font-size:13px;font-weight:600;letter-spacing:0.01em;}
   .chart-pair .dim{color:var(--text-dim);font-weight:400;margin-left:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
@@ -160,7 +165,8 @@
     background:var(--panel);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:6px;cursor:pointer;color:var(--text-dim);
-    border:1px dashed var(--border);
+    border:1px dashed var(--border);border-radius:6px;
+    width:200px;height:160px;flex-shrink:0;
   }
   .add-tile:hover{color:var(--accent);border-color:var(--accent);}
   .add-tile .plus{font-size:28px;line-height:1;}
@@ -183,7 +189,6 @@
     .layout{flex-direction:column;}
     .sidebar{width:100%;height:280px;border-right:none;border-bottom:1px solid var(--border);}
     .sessions{display:none;}
-    .chart-grid{grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));}
     .add-symbol select{width:92px;}
   }
 </style>
@@ -278,7 +283,7 @@
   });
 
   var customEntries = loadCustomEntries();
-  customEntries.forEach(function(e){ registerCustomEntry(e, false); });
+  customEntries.forEach(function(e){ registerCustomEntry(e); });
 
   var slots = loadSlots();
   if(!slots || !slots.length){
@@ -288,29 +293,29 @@
     if(!slots.length) slots = DEFAULT_SLOTS.slice();
   }
 
+  var panelSizes = loadPanelSizes();     // key -> {w,h}
+  var panelNodes = {};                   // key -> DOM node
+  var panelObservers = {};               // key -> ResizeObserver
+  var addTileNode = null;
+
   var latestRates = null;
   var previousRates = null;
 
   /* ---------------- persistence ---------------- */
-  function saveCustomEntries(){
-    try{ localStorage.setItem("fxdesk_custom_entries", JSON.stringify(customEntries)); }catch(e){}
-  }
+  function saveCustomEntries(){ try{ localStorage.setItem("fxdesk_custom_entries", JSON.stringify(customEntries)); }catch(e){} }
   function loadCustomEntries(){
-    try{
-      var raw = localStorage.getItem("fxdesk_custom_entries");
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
+    try{ var raw = localStorage.getItem("fxdesk_custom_entries"); if(raw) return JSON.parse(raw); }catch(e){}
     return [];
   }
-  function saveSlots(){
-    try{ localStorage.setItem("fxdesk_slots", JSON.stringify(slots)); }catch(e){}
-  }
+  function saveSlots(){ try{ localStorage.setItem("fxdesk_slots", JSON.stringify(slots)); }catch(e){} }
   function loadSlots(){
-    try{
-      var raw = localStorage.getItem("fxdesk_slots");
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
+    try{ var raw = localStorage.getItem("fxdesk_slots"); if(raw) return JSON.parse(raw); }catch(e){}
     return null;
+  }
+  function savePanelSizes(){ try{ localStorage.setItem("fxdesk_panel_sizes", JSON.stringify(panelSizes)); }catch(e){} }
+  function loadPanelSizes(){
+    try{ var raw = localStorage.getItem("fxdesk_panel_sizes"); if(raw) return JSON.parse(raw); }catch(e){}
+    return {};
   }
 
   function registerCustomEntry(entry){
@@ -321,9 +326,7 @@
         removable:true
       };
     } else {
-      assetsByKey[entry.id] = {
-        type:"tv", tvSymbol:entry.tvSymbol, label:entry.label, removable:true
-      };
+      assetsByKey[entry.id] = { type:"tv", tvSymbol:entry.tvSymbol, label:entry.label, removable:true };
     }
   }
 
@@ -374,10 +377,8 @@
       var code = raw.replace(/[^A-Za-z]/g,"").toUpperCase();
       if(code.length !== 6){ showToast("Enter a 6-letter pair, e.g. USDTHB."); return; }
       var base = code.slice(0,3), quote = code.slice(3,6);
-      if(latestRates && (!latestRates[base] || !latestRates[quote])){
-        showToast("Unrecognized currency code."); return;
-      }
-      if(assetsByKey[code]){ showToast(code + " is already in your list."); selectListVisible(code); return; }
+      if(latestRates && (!latestRates[base] || !latestRates[quote])){ showToast("Unrecognized currency code."); return; }
+      if(assetsByKey[code]){ showToast(code + " is already in your list."); return; }
       var entry = { id:code, kind:"forex", pair:code };
       registerCustomEntry(entry);
       customEntries.push(entry);
@@ -415,20 +416,18 @@
 
   function removeCustomEntry(key){
     delete assetsByKey[key];
-    customEntries = customEntries.filter(function(e){
-      return (e.kind === "forex" ? e.pair : e.id) !== key;
-    });
+    customEntries = customEntries.filter(function(e){ return (e.kind === "forex" ? e.pair : e.id) !== key; });
     var slotIdx = slots.indexOf(key);
-    if(slotIdx !== -1) slots.splice(slotIdx, 1);
+    if(slotIdx !== -1){
+      slots.splice(slotIdx, 1);
+      saveSlots();
+      removePanelNode(key);
+      updateAddTileState();
+    }
+    delete panelSizes[key];
+    savePanelSizes();
     saveCustomEntries();
-    saveSlots();
     renderQuoteList(document.getElementById("searchBox").value);
-    renderChartGrid();
-  }
-
-  function selectListVisible(key){
-    var row = document.querySelector('[data-key="' + key + '"]');
-    if(row) row.scrollIntoView({ block:"center", behavior:"smooth" });
   }
 
   /* ---------------- sidebar rendering ---------------- */
@@ -580,45 +579,78 @@
     return row;
   }
 
-  /* ---------------- selection logic ---------------- */
+  /* ---------------- selection logic (non-destructive) ---------------- */
   function selectPair(key){
     var idx = slots.indexOf(key);
     if(idx !== -1){
       slots.splice(idx, 1);
+      saveSlots();
+      removePanelNode(key);
     } else {
       if(slots.length >= MAX_SLOTS){
         showToast("Maximum " + MAX_SLOTS + " charts — remove one to add another.");
         return;
       }
       slots.push(key);
+      saveSlots();
+      appendPanelNode(key);
     }
-    saveSlots();
-    renderQuoteList(document.getElementById("searchBox").value);
-    renderChartGrid();
+    updateAddTileState();
+    updateRowHighlight(key);
   }
 
-  function removeSlot(index){
-    slots.splice(index, 1);
-    saveSlots();
-    renderQuoteList(document.getElementById("searchBox").value);
-    renderChartGrid();
+  function updateRowHighlight(key){
+    var row = document.querySelector('.quote-list [data-key="' + key + '"]');
+    if(!row) return;
+    var selected = slots.indexOf(key) !== -1;
+    if(row.classList.contains("tv-row")){
+      row.classList.toggle("selected", selected);
+    } else {
+      row.classList.toggle("selected", selected);
+    }
   }
 
-  /* ---------------- chart grid ---------------- */
-  function renderChartGrid(){
+  /* ---------------- chart grid (incremental — never rebuilds existing panels) ---------------- */
+  function initChartGrid(){
     var grid = document.getElementById("chartGrid");
     grid.innerHTML = "";
-    slots.forEach(function(key, index){
-      grid.appendChild(buildPanel(index, key));
-    });
-    grid.appendChild(buildAddTile());
+    panelNodes = {};
+    panelObservers = {};
+    slots.forEach(function(key){ appendPanelNode(key); });
+    addTileNode = buildAddTile();
+    grid.appendChild(addTileNode);
   }
 
-  function buildPanel(index, key){
+  function appendPanelNode(key){
+    var grid = document.getElementById("chartGrid");
+    var panel = buildPanel(key);
+    if(addTileNode && addTileNode.parentNode === grid){
+      grid.insertBefore(panel, addTileNode);
+    } else {
+      grid.appendChild(panel);
+    }
+    panelNodes[key] = panel;
+  }
+
+  function removePanelNode(key){
+    var node = panelNodes[key];
+    if(node){
+      if(panelObservers[key]){ panelObservers[key].disconnect(); delete panelObservers[key]; }
+      node.remove();
+      delete panelNodes[key];
+    }
+  }
+
+  function buildPanel(key){
     var asset = assetsByKey[key];
     var panel = document.createElement("div");
     panel.className = "chart-panel";
-    panel.dataset.slot = index;
+    panel.dataset.key = key;
+
+    var saved = panelSizes[key];
+    if(saved && saved.w) panel.style.width = saved.w;
+    if(saved && saved.h) panel.style.height = saved.h;
+    if(!saved && window.innerWidth < 860){ panel.style.width = "100%"; }
 
     var head = document.createElement("div");
     head.className = "chart-panel-head";
@@ -632,7 +664,7 @@
       if(v != null){
         var dim = document.createElement("span");
         dim.className = "dim";
-        dim.dataset.slotPrice = index;
+        dim.dataset.slotPrice = key;
         dim.textContent = v.toFixed(decimalsFor(asset.pair));
         title.appendChild(dim);
       }
@@ -643,7 +675,14 @@
     closeBtn.className = "close-btn";
     closeBtn.setAttribute("aria-label", "Remove chart");
     closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", function(){ removeSlot(index); });
+    closeBtn.addEventListener("click", function(){
+      var idx = slots.indexOf(key);
+      if(idx !== -1) slots.splice(idx, 1);
+      saveSlots();
+      removePanelNode(key);
+      updateAddTileState();
+      updateRowHighlight(key);
+    });
     head.appendChild(closeBtn);
 
     panel.appendChild(head);
@@ -655,28 +694,46 @@
     var fullSymbol = asset.type === "forex" ? ("FX_IDC:" + asset.pair) : asset.tvSymbol;
     mountTradingViewChart(tvContainer, fullSymbol);
 
+    // remember any manual resize so it survives reloads and future re-renders
+    if(window.ResizeObserver){
+      var timer = null;
+      var observer = new ResizeObserver(function(){
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+          panelSizes[key] = { w: panel.offsetWidth + "px", h: panel.offsetHeight + "px" };
+          savePanelSizes();
+        }, 400);
+      });
+      observer.observe(panel);
+      panelObservers[key] = observer;
+    }
+
     return panel;
   }
 
   function buildAddTile(){
-    var full = slots.length >= MAX_SLOTS;
     var tile = document.createElement("div");
-    tile.className = "add-tile" + (full ? " full" : "");
     tile.setAttribute("tabindex", "0");
     tile.setAttribute("role", "button");
-
-    var plus = document.createElement("div");
-    plus.className = "plus";
-    plus.textContent = "+";
+    tile.appendChild(document.createElement("div")).className = "plus";
+    tile.lastChild.textContent = "+";
     var label = document.createElement("div");
     label.className = "label";
-    label.textContent = full ? "Maximum charts reached" : "Add chart";
-
-    tile.appendChild(plus);
     tile.appendChild(label);
 
+    function refresh(){
+      var full = slots.length >= MAX_SLOTS;
+      tile.className = "add-tile" + (full ? " full" : "");
+      label.textContent = full ? "Maximum charts reached" : "Add chart";
+    }
+    refresh();
+    tile._refresh = refresh;
+
     function trigger(){
-      if(full){ showToast("Maximum " + MAX_SLOTS + " charts — remove one to add another."); return; }
+      if(slots.length >= MAX_SLOTS){
+        showToast("Maximum " + MAX_SLOTS + " charts — remove one to add another.");
+        return;
+      }
       var box = document.getElementById("searchBox");
       box.focus();
       box.scrollIntoView({ block:"center", behavior:"smooth" });
@@ -687,11 +744,14 @@
     return tile;
   }
 
+  function updateAddTileState(){
+    if(addTileNode && addTileNode._refresh) addTileNode._refresh();
+  }
+
   function updateChartHeaders(){
     document.querySelectorAll("[data-slot-price]").forEach(function(el){
-      var idx = parseInt(el.dataset.slotPrice, 10);
-      var key = slots[idx];
-      var asset = key ? assetsByKey[key] : null;
+      var key = el.dataset.slotPrice;
+      var asset = assetsByKey[key];
       if(asset && asset.type === "forex" && latestRates){
         var v = pairPrice(latestRates, asset.pair);
         if(v != null) el.textContent = v.toFixed(decimalsFor(asset.pair));
@@ -784,7 +844,7 @@
   });
 
   renderQuoteList("");
-  renderChartGrid();
+  initChartGrid();
   fetchRates();
   setInterval(fetchRates, 60000);
   tickClocks();
